@@ -1,8 +1,12 @@
-// app/providers.tsx
 "use client";
 
+import { FirebaseProvider } from "@/context/Firebase/FirebaseContext";
 import { ChakraProvider } from "@chakra-ui/react";
 
 export function Providers({ children }) {
-  return <ChakraProvider>{children}</ChakraProvider>;
+  return (
+    <ChakraProvider>
+      <FirebaseProvider>{children}</FirebaseProvider>
+    </ChakraProvider>
+  );
 }
