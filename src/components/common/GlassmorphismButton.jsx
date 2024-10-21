@@ -7,6 +7,7 @@ const GlassmorphismButton = ({
   size = "md",
   loadingText = "Authenticating...",
   borderRadius = "full",
+  onClickCallBack,
 }) => {
   return (
     <Button
@@ -25,6 +26,7 @@ const GlassmorphismButton = ({
       boxShadow="0 4px 30px rgba(0, 0, 0, 0.2)"
       borderRadius={borderRadius}
       zIndex={999}
+      onClick={onClickCallBack?.()}
     >
       {children}
     </Button>

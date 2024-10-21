@@ -7,9 +7,15 @@ import { FaGoogle } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import { TS_PARTICLES_OPTIONS } from "@/constant/appConstant";
 import GlassmorphismButton from "@/components/common/GlassmorphismButton";
+import { useFirebase } from "@/hooks/firebase/useFirebase";
 
 const AuthenticationPage = () => {
   const [init, setInit] = useState(false);
+  const { firebaseMethods, states } = useFirebase();
+
+  // destructuring the states
+  const { signUpWithGoogle } = firebaseMethods;
+  const { isLoading } = states;
 
   // this should be run only once per application lifetime
   useEffect(() => {
@@ -43,9 +49,28 @@ const AuthenticationPage = () => {
           />
         )}
       </Box>
-      <GlassmorphismButton leftIcon={<FaGoogle />}>
+      <Button
+        size={"md"}
+        leftIcon={<FaGoogle />}
+        color="white"
+        variant="outline"
+        onClick={signUpWithGoogle}
+        isLoading={isLoading}
+        isDisabled={isLoading}
+        loadingText="Authenticating..."
+        backgroundColor="rgba(255, 255, 255, 0.2)" // Light transparent background
+        backdropFilter="blur(100px)" // Adjusted blur value
+        border="1px solid rgba(255, 255, 255, 0.3)" // Light border for a more glass-like appearance
+        _hover={{
+          backgroundColor: "rgba(255, 255, 255, 0.2)", // Slightly darker on hover for a more interactive feel
+          backdropFilter: "blur(15px)", // Increased blur on hover
+        }}
+        boxShadow="0 4px 30px rgba(0, 0, 0, 0.1)" // Soft shadow for a floating effect
+        borderRadius="full" // Rounded corners
+        zIndex={1} // Ensure button is above particles
+      >
         Continue with Google
-      </GlassmorphismButton>
+      </Button>
     </Flex>
   );
 };

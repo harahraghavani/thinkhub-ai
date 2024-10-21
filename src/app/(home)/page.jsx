@@ -1,9 +1,11 @@
-import GlassmorphismButton from "@/components/common/GlassmorphismButton";
+import Home from "@/components/common/Home";
+import NavBar from "@/components/common/NavBar";
 
 const HomePage = () => {
   return (
     <div>
-      <GlassmorphismButton>Intellihub AI</GlassmorphismButton>
+      <NavBar />
+      <Home />
     </div>
   );
 };

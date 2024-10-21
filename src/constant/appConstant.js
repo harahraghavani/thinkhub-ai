@@ -54,18 +54,18 @@ export const TS_PARTICLES_OPTIONS = {
     number: {
       density: {
         enable: true,
-        area: 800,
+        area: 1000,
       },
-      value: 700,
+      value: 400,
     },
     opacity: {
-      value: 0.1,
+      value: 0.4,
     },
     shape: {
       type: ["circle", "triangle", "image"],
     },
     size: {
-      value: { min: 1, max: 3 },
+      value: { min: 3, max: 7 },
     },
   },
   detectRetina: false,
