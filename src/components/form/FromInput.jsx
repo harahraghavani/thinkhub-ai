@@ -4,7 +4,6 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Input,
   InputRightElement,
   Box,
   IconButton,
@@ -70,6 +69,7 @@ const FormInput = ({
           height="45px"
           minHeight={"45px"}
           maxHeight={"100px"}
+          autoFocus={true}
           onChange={handleChange}
           autoComplete="off"
           isInvalid={!!errors[name]}
@@ -146,11 +146,15 @@ const FormInput = ({
           <IconButton
             h="100%"
             size="lg"
-            onClick={sendOnClick}
+            onClick={() => {
+              sendOnClick();
+              setContent("");
+            }}
             icon={<FiSend />}
             bgColor={"transparent"}
             _hover={{ bgColor: "transparent" }}
             isLoading={isLoading}
+            cursor={"pointer"}
             isDisabled={btnDisabled}
             _focusVisible={{ outline: "none" }}
           />

@@ -1,5 +1,6 @@
 "use client";
 
+import { MessageProvider } from "@/context/message/MessagesContext";
 // import { FirebaseProvider } from "@/context/Firebase/FirebaseContext";
 import { ChakraProvider } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
@@ -15,7 +16,9 @@ const FirebaseProvider = dynamic(
 export function Providers({ children }) {
   return (
     <ChakraProvider>
-      <FirebaseProvider>{children}</FirebaseProvider>
+      <MessageProvider>
+        <FirebaseProvider>{children}</FirebaseProvider>
+      </MessageProvider>
     </ChakraProvider>
   );
 }

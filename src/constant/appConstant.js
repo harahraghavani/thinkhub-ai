@@ -86,3 +86,6 @@ export const ALL_MODELS_ARRAY = [
 ];
 
 export const INTELLIHUB_SELECTED_MODEL = "intellihub_selected_model";
+
+export const ROLE_USER = "user";
+export const ROLE_ASSISTANT = "assistant";
