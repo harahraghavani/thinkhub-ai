@@ -31,17 +31,15 @@ const FormInput = ({
   btnDisabled,
 }) => {
   const textareaRef = useRef(null);
-  const [isTextarea, setIsTextarea] = useState(false);
+  const [content, setContent] = useState("");
 
   const { colorMode } = useColorMode();
   const { ref: inputRef, onChange, ...rest } = register(name, rules);
 
   const handleChange = (e) => {
+    setContent(e.target.value);
     if (onChangeCallBack) {
       onChangeCallBack(e);
-    }
-    if (e.target.value.includes("\n")) {
-      setIsTextarea(true);
     }
     onChange(e);
   };
@@ -49,35 +47,36 @@ const FormInput = ({
   // Auto-grow Textarea height based on input content
   useEffect(() => {
     if (textareaRef.current) {
-      console.log(textareaRef.current.scrollHeight);
-      textareaRef.current.style.height = "auto"; // Reset height before resizing
-      textareaRef.current.style.minHeight = `${textareaRef.current.scrollHeight}px`;
+      textareaRef.current.style.height = "40px";
+      const scrollHeight = textareaRef.current.scrollHeight;
+      textareaRef.current.style.height = scrollHeight + "px";
     }
-  }, [textareaRef]);
+  }, [content]);
 
   return (
     <FormControl id={id} isInvalid={!!errors[name]} width={"100%"}>
       <FormLabel htmlFor={id}>{label}</FormLabel>
       <InputGroup>
-        {/* {isTextarea ? ( */}
         <Textarea
           ref={(e) => {
             textareaRef.current = e;
             inputRef(e);
           }}
+          value={content}
           width="100%"
           minW={"100%"}
           type={type}
           resize={"none"}
-          height="40px"
-          minHeight={"40px"}
-          autoGrow={2}
+          height="45px"
+          minHeight={"45px"}
+          maxHeight={"100px"}
           onChange={handleChange}
           autoComplete="off"
           isInvalid={!!errors[name]}
           _active={!!errors[name] ? { borderColor: "red.400" } : ""}
           placeholder={placeHolderText}
           boxShadow="inner"
+          padding={"10px 55px 10px 15px"}
           border={
             colorMode === "light"
               ? "1px solid rgba(0, 0, 0, 0.5)"
@@ -90,7 +89,6 @@ const FormInput = ({
                 : "rgba(255,255,255, 0.7)",
           }}
           sx={{
-            paddingInlineEnd: "55px",
             "&:hover": {
               boxShadow: "none",
               border:
@@ -106,58 +104,47 @@ const FormInput = ({
                   ? "1px solid rgba(0, 0, 0, 0.4)"
                   : "1px solid rgba(255,255,255, 0.4)",
             },
+            "&::-webkit-scrollbar": {
+              width: "4px",
+              borderRadius: "8px",
+            },
+            "&::-webkit-scrollbar-track": {
+              width: "7px",
+              borderRadius: "7px",
+              margin: "7px 0 7px 0",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background:
+                colorMode === "light"
+                  ? "rgba(0, 0, 0, 0.3)"
+                  : "rgba(255, 255, 255, 0.3)",
+              borderRadius: "24px",
+            },
+            border:
+              colorMode === "light"
+                ? "1px solid rgba(0, 0, 0, 0.5)"
+                : "1px solid rgba(255, 255, 255, 0.5)",
+            _hover: {
+              border:
+                colorMode === "light"
+                  ? "1px solid rgba(0, 0, 0, 0.4)"
+                  : "1px solid rgba(255, 255, 255, 0.4)",
+            },
+            _focus: {
+              outline: "none",
+              boxShadow: "none",
+              border:
+                colorMode === "light"
+                  ? "1px solid rgba(0, 0, 0, 0.4)"
+                  : "1px solid rgba(255, 255, 255, 0.4)",
+            },
           }}
-          rounded={"full"}
+          rounded={"xl"}
           {...rest}
         />
-        {/* ) : ( */}
-        {/* <Input
-          width="100%"
-          minW={"100%"}
-          type={type}
-          ref={inputRef}
-          onChange={handleChange}
-          autoComplete="off"
-          isInvalid={!!errors[name]}
-          _active={!!errors[name] ? { borderColor: "red.400" } : ""}
-          placeholder={placeHolderText}
-          boxShadow="inner"
-          border={
-            colorMode === "light"
-              ? "1px solid rgba(0, 0, 0, 0.5)"
-              : "1px solid rgba(255,255,255, 0.5)"
-          }
-          _placeholder={{
-            color:
-              colorMode === "light"
-                ? "rgba(0, 0, 0, 0.7)"
-                : "rgba(255,255,255, 0.7)",
-          }}
-          sx={{
-            paddingInlineEnd: "55px",
-            "&:hover": {
-              boxShadow: "none",
-              border:
-                colorMode === "light"
-                  ? "1px solid rgba(0, 0, 0, 0.4)"
-                  : "1px solid rgba(255,255,255, 0.4)",
-            },
-            "&:focus": {
-              outline: "none",
-              boxShadow: "none",
-              border:
-                colorMode === "light"
-                  ? "1px solid rgba(0, 0, 0, 0.4)"
-                  : "1px solid rgba(255,255,255, 0.4)",
-            },
-          }}
-          rounded={"full"}
-          {...rest}
-        /> */}
-        {/* )} */}
-        <InputRightElement width="4.5rem">
+        <InputRightElement width="4.5rem" height={"100%"}>
           <IconButton
-            h="1.75rem"
+            h="100%"
             size="lg"
             onClick={sendOnClick}
             icon={<FiSend />}

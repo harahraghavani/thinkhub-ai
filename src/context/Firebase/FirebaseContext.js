@@ -104,7 +104,7 @@ const FirebaseProvider = ({ children }) => {
         clearCookie(USER_DATA);
         clearCookie(INTELLIHUB_SELECTED_MODEL);
         setMessages([]);
-        router.push("/login");
+        // router.push("/login");
         toast({
           title: "Logged out successfully",
           status: "success",
