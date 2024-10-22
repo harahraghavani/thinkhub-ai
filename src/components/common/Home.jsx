@@ -34,6 +34,7 @@ const Home = () => {
   const [isCopied, setIsCopied] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const { messages, setMessages } = useChatMessages();
+  const [isStreamComplete, setIsStreamComplete] = useState(false);
 
   // react hook form
   const {
@@ -164,27 +165,29 @@ const Home = () => {
 
     setValue("promptInput", "");
 
-    const { output } = await generateStreamedTextData({
+    const response = await generateStreamedTextData({
       messages: [...messages, newUserMessage],
     });
 
+    console.log(response);
+
     let fullContent = "";
-    for await (const delta of readStreamableValue(output)) {
+    for await (const delta of readStreamableValue(response.output)) {
       fullContent += delta;
 
-      setTimeout(() => {
-        // Update the last message (assistant's message) with the new content
-        setMessages((prevMessages) => {
-          const updatedMessages = [...prevMessages];
-          updatedMessages[updatedMessages.length - 1] = {
-            ...updatedMessages[updatedMessages.length - 1],
-            content: fullContent,
-            isLoading: false,
-          };
-          return updatedMessages;
-        });
-      }, 5000);
+      // Update the last message (assistant's message) with the new content
+      setMessages((prevMessages) => {
+        const updatedMessages = [...prevMessages];
+        updatedMessages[updatedMessages.length - 1] = {
+          ...updatedMessages[updatedMessages.length - 1],
+          content: fullContent,
+          isLoading: false,
+        };
+        return updatedMessages;
+      });
     }
+
+    setIsStreamComplete(true);
   };
 
   // Auto-scroll to the latest message
@@ -251,8 +254,8 @@ const Home = () => {
                             px={msg.role === ROLE_USER ? 4 : 6}
                             py={msg.role === ROLE_USER ? 2.5 : 0}
                             borderRadius="lg"
-                            transition="background 0.3s ease"
-                            width={msg.role === ROLE_USER ? "100%" : "100%"}
+                            transition="background 0.3s ease-in"
+                            width={"100%"}
                           >
                             {msg.role === ROLE_ASSISTANT ? (
                               msg.isLoading ? (
@@ -270,35 +273,37 @@ const Home = () => {
                             )}
                           </Box>
                         </Flex>
-                        {msg.role === ROLE_ASSISTANT && !msg.isLoading && (
-                          <Box>
-                            {isCopied && selectedIndex === index ? (
-                              <IconButton
-                                bg="transparent"
-                                icon={<HiMiniCheck size={20} />}
-                                _hover={{ bg: "transparent" }}
-                                _active={{ bg: "transparent" }}
-                                _focusVisible={{
-                                  bg: "transparent",
-                                  outline: "none",
-                                }}
-                                cursor="default"
-                              />
-                            ) : (
-                              <IconButton
-                                bg="transparent"
-                                icon={<PiCopySimple size={20} />}
-                                _hover={{ bg: "transparent" }}
-                                _active={{ bg: "transparent" }}
-                                _focusVisible={{
-                                  bg: "transparent",
-                                  outline: "none",
-                                }}
-                                onClick={() => handleCopy(msg.text, index)}
-                              />
-                            )}
-                          </Box>
-                        )}
+                        {msg.role === ROLE_ASSISTANT &&
+                          !msg.isLoading &&
+                          isStreamComplete && (
+                            <Box>
+                              {isCopied && selectedIndex === index ? (
+                                <IconButton
+                                  bg="transparent"
+                                  icon={<HiMiniCheck size={20} />}
+                                  _hover={{ bg: "transparent" }}
+                                  _active={{ bg: "transparent" }}
+                                  _focusVisible={{
+                                    bg: "transparent",
+                                    outline: "none",
+                                  }}
+                                  cursor="default"
+                                />
+                              ) : (
+                                <IconButton
+                                  bg="transparent"
+                                  icon={<PiCopySimple size={20} />}
+                                  _hover={{ bg: "transparent" }}
+                                  _active={{ bg: "transparent" }}
+                                  _focusVisible={{
+                                    bg: "transparent",
+                                    outline: "none",
+                                  }}
+                                  onClick={() => handleCopy(msg.text, index)}
+                                />
+                              )}
+                            </Box>
+                          )}
                       </Flex>
                     </Fragment>
                   );

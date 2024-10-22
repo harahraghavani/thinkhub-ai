@@ -142,7 +142,7 @@ const FormInput = ({
           rounded={"xl"}
           {...rest}
         />
-        <InputRightElement width="4.5rem" height={"100%"}>
+        <InputRightElement width="4.5rem" height={"100%"} cursor={"pointer"}>
           <IconButton
             h="100%"
             size="lg"
@@ -154,7 +154,6 @@ const FormInput = ({
             bgColor={"transparent"}
             _hover={{ bgColor: "transparent" }}
             isLoading={isLoading}
-            cursor={"pointer"}
             isDisabled={btnDisabled}
             _focusVisible={{ outline: "none" }}
           />
