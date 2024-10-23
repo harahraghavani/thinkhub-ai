@@ -10,7 +10,7 @@ export const generateStreamedTextData = async ({
   model = GEMINI_1_5_FLASH,
 }) => {
   try {
-    let isGenerated = false;
+    console.log(messages);
     const google = googleProvider();
     const generativeModel = google(model);
 
@@ -19,9 +19,6 @@ export const generateStreamedTextData = async ({
       const { textStream } = await streamText({
         model: generativeModel,
         messages,
-        onFinish: () => {
-          return "Completed";
-        },
       });
 
       for await (const delta of textStream) {

@@ -19,7 +19,6 @@ import {
   VStack,
   IconButton,
   useColorMode,
-  keyframes as KeyFrames,
 } from "@chakra-ui/react";
 
 import { generateStreamedTextData } from "@/server/server";
@@ -28,13 +27,12 @@ import { useChatMessages } from "@/hooks/messages/useChatMessages";
 
 const Home = () => {
   const chatEndRef = useRef(null);
-  const containerRef = useRef(null);
-  const [width, setWidth] = useState(0);
+
   const { colorMode } = useColorMode();
   const [isCopied, setIsCopied] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const { messages, setMessages } = useChatMessages();
-  const [isStreamComplete, setIsStreamComplete] = useState(false);
+  const [isStreamComplete, setIsStreamComplete] = useState(null);
 
   // react hook form
   const {
@@ -97,7 +95,6 @@ const Home = () => {
         <Box
           as="pre"
           mb={5}
-          p={2}
           overflowX="auto" // Allow horizontal scrolling
           overflowY="hidden" // Hide vertical scrollbar if unnecessary
           whiteSpace="pre" // Prevent wrapping, maintaining the original format
@@ -110,12 +107,12 @@ const Home = () => {
     code: ({ inline, className, children, ...props }) => {
       const match = /language-(\w+)/.exec(className || "");
       return !inline && match ? (
-        <Box className="code-box">
+        <Box className="code-box" width="100%" overflowX="auto">
           <SyntaxHighlighter
             style={okaidia}
             language={match[1]}
             PreTag="div"
-            // customStyle={{ width: `${width}px` }}
+            customStyle={{ borderRadius: "0.375rem", marginTop: 0 }}
             children={String(children).replace(/\n$/, "")}
             {...props}
           />
@@ -138,7 +135,28 @@ const Home = () => {
   };
 
   const handleCopy = (text, index) => {
-    navigator.clipboard.writeText(text).then(() => {
+    // Check if the text is a code block
+    const isCodeBlock = text.startsWith("```") && text.endsWith("```");
+
+    let plainText;
+    if (isCodeBlock) {
+      // For code blocks, remove the backticks and language identifier
+      plainText = text
+        .replace(/^```[\w-]*\n/, "") // Remove opening ```language
+        .replace(/```$/, "") // Remove closing ```
+        .trim();
+    } else {
+      // For regular text, remove Markdown formatting
+      plainText = text
+        .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
+        .replace(/\*(.*?)\*/g, "$1") // Remove italic
+        .replace(/\[(.*?)\]$$.*?$$/g, "$1") // Remove links
+        .replace(/^#+\s/gm, "") // Remove heading markers
+        .replace(/^[-*+]\s/gm, "") // Remove list item markers
+        .trim();
+    }
+
+    navigator.clipboard.writeText(plainText).then(() => {
       setSelectedIndex(index);
       setIsCopied(true);
       // Revert back to copy icon after 2 seconds
@@ -150,6 +168,7 @@ const Home = () => {
   };
 
   const handleSendMessage = async () => {
+    setIsStreamComplete(false);
     const newUserMessage = { role: ROLE_USER, content: inputValue };
     setMessages((prevMessages) => [...prevMessages, newUserMessage]);
 
@@ -164,15 +183,12 @@ const Home = () => {
     // Start loading state
 
     setValue("promptInput", "");
-
-    const response = await generateStreamedTextData({
+    const { output } = await generateStreamedTextData({
       messages: [...messages, newUserMessage],
     });
 
-    console.log(response);
-
     let fullContent = "";
-    for await (const delta of readStreamableValue(response.output)) {
+    for await (const delta of readStreamableValue(output)) {
       fullContent += delta;
 
       // Update the last message (assistant's message) with the new content
@@ -186,7 +202,6 @@ const Home = () => {
         return updatedMessages;
       });
     }
-
     setIsStreamComplete(true);
   };
 
@@ -197,20 +212,26 @@ const Home = () => {
     }
   }, [messages]);
 
-  useEffect(() => {
-    if (containerRef.current && messages) {
-      setWidth(containerRef.current.offsetWidth - 114);
-    }
-  }, [containerRef, messages]);
-
   return (
-    <Container>
-      <Flex direction="column" height="calc(100vh - 80px)">
+    <Container
+      maxWidth={{
+        base: "90%",
+        md: "2xl",
+      }}
+      display="flex"
+      flexDirection="column"
+      overflow={"hidden"}
+      padding={0}
+    >
+      <Flex direction="column" height="calc(100vh - 80px)" width={"100%"}>
         <Flex flex={1} direction="column" overflow="hidden">
           <Box
             flex={1}
             overflowY="auto"
-            px={5}
+            px={{
+              base: 0,
+              md: 0,
+            }}
             py={4}
             sx={{
               "&::-webkit-scrollbar": {
@@ -220,7 +241,7 @@ const Home = () => {
               "scrollbar-width": "none",
             }}
           >
-            <VStack align="stretch" mx={0}>
+            <VStack align="stretch" mx={0} width="100%">
               {messages &&
                 messages.length > 0 &&
                 messages?.map((msg, index) => {
@@ -235,7 +256,11 @@ const Home = () => {
                         w="full"
                         mb={msg.role === ROLE_USER ? 8 : 0}
                       >
-                        <Flex align="unset">
+                        <Flex
+                          align="unset"
+                          gap={msg.role === ROLE_USER ? 0 : 4}
+                          width={msg.role === ROLE_USER ? "unset" : "100%"}
+                        >
                           {msg.role === ROLE_ASSISTANT && (
                             <Box>
                               <HiOutlineSparkles size={30} />
@@ -251,11 +276,12 @@ const Home = () => {
                                 ? ""
                                 : ""
                             }
-                            px={msg.role === ROLE_USER ? 4 : 6}
+                            px={msg.role === ROLE_USER ? 4 : 0}
                             py={msg.role === ROLE_USER ? 2.5 : 0}
                             borderRadius="lg"
                             transition="background 0.3s ease-in"
                             width={"100%"}
+                            overflow={"auto"}
                           >
                             {msg.role === ROLE_ASSISTANT ? (
                               msg.isLoading ? (
@@ -299,7 +325,7 @@ const Home = () => {
                                     bg: "transparent",
                                     outline: "none",
                                   }}
-                                  onClick={() => handleCopy(msg.text, index)}
+                                  onClick={() => handleCopy(msg.content, index)}
                                 />
                               )}
                             </Box>
@@ -312,7 +338,7 @@ const Home = () => {
             </VStack>
           </Box>
         </Flex>
-        <Box as="footer" p={4}>
+        <Box as="footer" py={4}>
           <FormInput
             name="promptInput"
             id="promptInput"
