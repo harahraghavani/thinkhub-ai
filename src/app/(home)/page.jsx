@@ -1,13 +1,7 @@
-import Home from "@/components/common/Home";
-import NavBar from "@/components/common/NavBar";
+import HomePageComponent from "@/components/home/HomePageComponent";
 
 const HomePage = () => {
-  return (
-    <div>
-      <NavBar />
-      <Home />
-    </div>
-  );
+  return <HomePageComponent />;
 };
 
 export default HomePage;

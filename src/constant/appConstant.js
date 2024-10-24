@@ -71,18 +71,59 @@ export const TS_PARTICLES_OPTIONS = {
   detectRetina: false,
 };
 
-export const GEMINI_1_5_FLASH = "gemini-1.5-flash";
-export const GEMINI_1_5_PRO = "gemini-1.5-pro";
 export const GEMINI_1_0_PRO = "gemini-1.0-pro";
-export const TEXT_EMBEDDING_004 = "text-embedding-004";
-export const AQA = "aqa";
+export const GEMINI_1_5_FLASH = "gemini-1.5-flash";
+export const GEMINI_1_5_FLASH_002 = "gemini-1.5-flash-002";
+export const GEMINI_1_5_FLASH_LATEST = "gemini-1.5-flash-latest";
+export const GEMINI_1_5_PRO = "gemini-1.5-pro";
+export const GEMINI_1_5_PRO_002 = "gemini-1.5-pro-002";
+export const GEMINI_1_5_PRO_LATEST = "gemini-1.5-pro-latest";
+export const GEMINI_PRO = "gemini-pro";
 
 export const ALL_MODELS_ARRAY = [
-  GEMINI_1_5_FLASH,
-  GEMINI_1_5_PRO,
   GEMINI_1_0_PRO,
-  TEXT_EMBEDDING_004,
-  AQA,
+  GEMINI_1_5_FLASH,
+  GEMINI_1_5_FLASH_002,
+  GEMINI_1_5_FLASH_LATEST,
+  GEMINI_1_5_PRO,
+  GEMINI_1_5_PRO_002,
+  GEMINI_1_5_PRO_LATEST,
+  GEMINI_PRO,
+];
+
+export const GEMINI_MODELS_OPTIONS = [
+  {
+    label: GEMINI_1_0_PRO,
+    value: GEMINI_1_0_PRO,
+  },
+  {
+    label: GEMINI_1_5_FLASH,
+    value: GEMINI_1_5_FLASH,
+  },
+  {
+    label: GEMINI_1_5_FLASH_002,
+    value: GEMINI_1_5_FLASH_002,
+  },
+  {
+    label: GEMINI_1_5_FLASH_LATEST,
+    value: GEMINI_1_5_FLASH_LATEST,
+  },
+  {
+    label: GEMINI_1_5_PRO,
+    value: GEMINI_1_5_PRO,
+  },
+  {
+    label: GEMINI_1_5_PRO_002,
+    value: GEMINI_1_5_PRO_002,
+  },
+  {
+    label: GEMINI_1_5_PRO_LATEST,
+    value: GEMINI_1_5_PRO_LATEST,
+  },
+  {
+    label: GEMINI_PRO,
+    value: GEMINI_PRO,
+  },
 ];
 
 export const INTELLIHUB_SELECTED_MODEL = "intellihub_selected_model";

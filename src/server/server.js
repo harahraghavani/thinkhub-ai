@@ -1,14 +1,9 @@
 "use server";
-
 import { streamText } from "ai";
 import { createStreamableValue } from "ai/rsc";
-import { GEMINI_1_5_FLASH } from "@/constant/appConstant";
 import { googleProvider } from "@/utility/models";
 
-export const generateStreamedTextData = async ({
-  messages,
-  model = GEMINI_1_5_FLASH,
-}) => {
+export const generateStreamedTextData = async ({ messages, model }) => {
   try {
     console.log(messages);
     const google = googleProvider();
