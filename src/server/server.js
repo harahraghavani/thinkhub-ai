@@ -5,7 +5,6 @@ import { googleProvider } from "@/utility/models";
 
 export const generateStreamedTextData = async ({ messages, model }) => {
   try {
-    console.log(messages);
     const google = googleProvider();
     const generativeModel = google(model);
 

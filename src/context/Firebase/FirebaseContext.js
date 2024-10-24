@@ -22,9 +22,13 @@ import {
 } from "../../constant/appConstant";
 import {
   arrayUnion,
+  collection,
   doc,
   getDoc,
+  getDocs,
   getFirestore,
+  orderBy,
+  query,
   setDoc,
   updateDoc,
 } from "firebase/firestore";
@@ -50,6 +54,8 @@ const FirebaseProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [getMessageLoader, setGetMessageLoader] = useState(false);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [isChatLoading, setIsChatLoading] = useState(false);
 
   // COOKIE DATA
   const accessToken = getCookie(USER_ACCESS_TOKEN);
@@ -104,7 +110,7 @@ const FirebaseProvider = ({ children }) => {
         clearCookie(USER_DATA);
         clearCookie(INTELLIHUB_SELECTED_MODEL);
         setMessages([]);
-        // router.push("/login");
+        router.push("/");
         toast({
           title: "Logged out successfully",
           status: "success",
@@ -126,8 +132,6 @@ const FirebaseProvider = ({ children }) => {
     clearCookie(USER_ACCESS_TOKEN);
     clearCookie(USER_DATA);
   };
-
-  const chatHistory = async () => {};
 
   const createMessageReference = async (messages, chatId) => {
     try {
@@ -163,6 +167,40 @@ const FirebaseProvider = ({ children }) => {
     setGetMessageLoader(false);
   };
 
+  const createNewChat = async () => {
+    router.push("/");
+    setMessages([]);
+  };
+
+  const getChatHistoryData = async () => {
+    setIsChatLoading(true);
+    try {
+      // Get all chat IDs for the user
+      const chatsRef = collection(DATABASE, "users", user.uid, "chats");
+      const chatSnapshot = await getDocs(chatsRef);
+
+      const chatsPromises = chatSnapshot.docs.map(async (chatDoc) => {
+        const chatId = chatDoc.id;
+        const messagesRef = doc(DATABASE, "users", user.uid, "chats", chatId);
+        const messagesSnap = await getDoc(messagesRef);
+        const messagesData = messagesSnap.data();
+
+        return {
+          id: chatId,
+          messages: messagesData?.messages || [],
+        };
+      });
+
+      const chatsData = await Promise.all(chatsPromises);
+
+      setChatHistory(chatsData);
+      setIsChatLoading(false);
+    } catch (error) {
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
   useEffect(() => {
     isUserExist();
     // eslint-disable-next-line
@@ -172,9 +210,10 @@ const FirebaseProvider = ({ children }) => {
     firebaseMethods: {
       signUpWithGoogle,
       logoutUser,
-      chatHistory,
       createMessageReference,
       getChatByChatID,
+      createNewChat,
+      getChatHistoryData,
     },
     states: {
       isLoading,
@@ -184,6 +223,9 @@ const FirebaseProvider = ({ children }) => {
       isGenerating,
       setIsGenerating,
       getMessageLoader,
+      isChatLoading,
+      chatHistory,
+      setIsChatLoading,
     },
     accessToken,
     userData,

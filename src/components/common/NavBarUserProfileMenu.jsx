@@ -3,6 +3,7 @@
 import { useFirebase } from "@/hooks/firebase/useFirebase";
 import {
   Avatar,
+  Box,
   Button,
   Menu,
   MenuButton,
@@ -16,27 +17,34 @@ const NavBarUserProfileMenu = () => {
   const { logoutUser } = firebaseMethods;
 
   return userData ? (
-    <Menu>
-      <MenuButton
-        as={Button}
-        bg={"transparent"}
-        _active={{
-          bg: "transparent",
-        }}
-        _hover={{
-          bg: "transparent",
-        }}
-        p={0}
-      >
-        <Avatar
-          name={userData?.displayName}
-          src={userData?.providerData?.[0]?.photoURL}
-        />
-      </MenuButton>
-      <MenuList>
-        <MenuItem onClick={async () => await logoutUser()}>Logout</MenuItem>
-      </MenuList>
-    </Menu>
+    <Box
+      display={{
+        base: "none",
+        md: "block",
+      }}
+    >
+      <Menu>
+        <MenuButton
+          as={Button}
+          bg={"transparent"}
+          _active={{
+            bg: "transparent",
+          }}
+          _hover={{
+            bg: "transparent",
+          }}
+          p={0}
+        >
+          <Avatar
+            name={userData?.displayName}
+            src={userData?.providerData?.[0]?.photoURL}
+          />
+        </MenuButton>
+        <MenuList>
+          <MenuItem onClick={async () => await logoutUser()}>Logout</MenuItem>
+        </MenuList>
+      </Menu>
+    </Box>
   ) : (
     <Link href={"/login"}>
       <Button variant="outline" colorScheme="green">

@@ -130,3 +130,5 @@ export const INTELLIHUB_SELECTED_MODEL = "intellihub_selected_model";
 
 export const ROLE_USER = "user";
 export const ROLE_ASSISTANT = "assistant";
+
+export const PUBLIC_ROUTES = ["/login", "/"];

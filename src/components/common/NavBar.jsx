@@ -1,14 +1,29 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Box, Flex, Heading, useColorMode } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  IconButton,
+  useColorMode,
+  useDisclosure,
+} from "@chakra-ui/react";
 import NavBarColorModeBtn from "./NavBarColorModeBtn";
 import NavBarSettingBtn from "./NavBarSettingBtn";
 import NavBarUserProfileMenu from "./NavBarUserProfileMenu";
+import { RxHamburgerMenu } from "react-icons/rx";
+import CommonDrawer from "./CommonDrawer";
+import NavBarContent from "./NavBarContent";
 
 const NabBar = () => {
   const router = useRouter();
   const { colorMode } = useColorMode();
+  const {
+    isOpen: isNavbarOpen,
+    onClose: toggleNavbar,
+    onOpen: openNavBar,
+  } = useDisclosure();
 
   return (
     <Box
@@ -22,12 +37,22 @@ const NabBar = () => {
       }
     >
       <Flex justifyContent={"space-between"} alignItems={"center"} p={"20px"}>
+        <Box display={{ base: "block", lg: "none" }}>
+          <IconButton
+            aria-label="Create New Chat"
+            icon={<RxHamburgerMenu />}
+            variant="solid"
+            rounded={"xl"}
+            size={"md"}
+            onClick={openNavBar}
+          />
+        </Box>
         <Heading
-          as="h4"
+          as="h1"
           size="md"
-          cursor="pointer"
-          onClick={() => {
-            router.push("/");
+          display={{
+            base: "none",
+            lg: "block",
           }}
         >
           IntelliHub AI
@@ -41,6 +66,16 @@ const NabBar = () => {
           <NavBarUserProfileMenu />
         </Flex>
       </Flex>
+      {isNavbarOpen && (
+        <CommonDrawer
+          isOpen={isNavbarOpen}
+          onClose={toggleNavbar}
+          title="IntelliHub AI"
+          placement="left"
+        >
+          <NavBarContent onClose={toggleNavbar} />
+        </CommonDrawer>
+      )}
     </Box>
   );
 };

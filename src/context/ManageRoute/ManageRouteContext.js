@@ -1,6 +1,6 @@
 "use client";
 
-import { USER_ACCESS_TOKEN } from "@/constant/appConstant";
+import { PUBLIC_ROUTES, USER_ACCESS_TOKEN } from "@/constant/appConstant";
 import { getCookie } from "@/utility/utils/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useEffect } from "react";
@@ -17,6 +17,12 @@ const ManageRouteProvider = ({ children }) => {
 
   useEffect(() => {
     if (accessToken && pathname === "/login") {
+      router.push("/");
+    }
+  }, [accessToken, pathname, router]);
+
+  useEffect(() => {
+    if (!accessToken && !PUBLIC_ROUTES.includes(pathname)) {
       router.push("/");
     }
   }, [accessToken, pathname, router]);

@@ -2,10 +2,13 @@
 
 import { useFirebase } from "@/hooks/firebase/useFirebase";
 import { Box, IconButton, Tooltip } from "@chakra-ui/react";
+import { usePathname } from "next/navigation";
 import { IoMdAdd } from "react-icons/io";
 
 const CreateNewChatBtn = () => {
-  const { accessToken } = useFirebase();
+  const pathname = usePathname();
+  const { accessToken, firebaseMethods } = useFirebase();
+  const { createNewChat } = firebaseMethods;
 
   return (
     accessToken && (
@@ -23,6 +26,10 @@ const CreateNewChatBtn = () => {
             variant="solid"
             rounded={"xl"}
             size={"md"}
+            onClick={() => {
+              createNewChat();
+            }}
+            disabled={pathname === "/"}
           />
         </Tooltip>
       </Box>

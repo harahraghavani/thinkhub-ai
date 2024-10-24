@@ -26,12 +26,12 @@ import {
 
 import { generateStreamedTextData } from "@/server/server";
 import { readStreamableValue } from "ai/rsc";
-import { useChatMessages } from "@/hooks/messages/useChatMessages";
 import { useFirebase } from "@/hooks/firebase/useFirebase";
 import CommonModal from "./CommonModal";
 import AuthModalContent from "./AuthModalContent";
 import { useChangeModel } from "@/hooks/changeModel/useChangeModel";
 import { useParams, useRouter } from "next/navigation";
+import GradientLoader from "../home/GradientLoader";
 
 const Home = () => {
   const chatEndRef = useRef(null);
@@ -54,8 +54,10 @@ const Home = () => {
   // Custome hooks
   // const { messages, setMessages } = useChatMessages();
   const { accessToken, firebaseMethods, states } = useFirebase();
-  const { messages, setMessages } = states;
-  const { createMessageReference } = firebaseMethods;
+  const { messages, isGenerating, user, getMessageLoader, setMessages } =
+    states;
+
+  const { createMessageReference, getChatByChatID } = firebaseMethods;
   const { selectedAIModel } = useChangeModel();
 
   // react hook form
@@ -228,8 +230,6 @@ const Home = () => {
     };
     setMessages((prevMessages) => [...prevMessages, newAssistantMessage]);
 
-    // Start loading state
-
     setValue("promptInput", "");
     const { output } = await generateStreamedTextData({
       messages: [...messages, newUserMessage],
@@ -257,8 +257,8 @@ const Home = () => {
 
   const storeDataInFirebase = async (messagesToStore) => {
     const chatId = params?.id ? params.id : uuidv4();
-    await createMessageReference(messagesToStore, chatId);
-    router.push(`/chat/${chatId}`);
+    createMessageReference(messagesToStore, chatId);
+    !params?.id && router.push(`/chat/${chatId}`);
   };
 
   useEffect(() => {
@@ -266,6 +266,13 @@ const Home = () => {
       storeDataInFirebase(messages);
     }
   }, [isStreamComplete, messages, storeDataInFirebase]);
+
+  useEffect(() => {
+    if (user && params?.id) {
+      getChatByChatID(params?.id);
+      setIsStreamComplete(true);
+    }
+  }, [user, params?.id]);
 
   // Auto-scroll to the latest message
   useEffect(() => {
@@ -304,107 +311,119 @@ const Home = () => {
                 "scrollbar-width": "none",
               }}
             >
-              <VStack align="stretch" mx={0} width="100%">
-                {messages &&
-                  messages.length > 0 &&
-                  messages?.map((msg, index) => {
-                    return (
-                      <Fragment key={msg.text}>
-                        <Flex
-                          key={index}
-                          align={
-                            msg.role === ROLE_USER ? "flex-end" : "flex-start"
-                          }
-                          direction="column"
-                          w="full"
-                          mb={msg.role === ROLE_USER ? 8 : 0}
-                        >
-                          <Flex
-                            align="unset"
-                            gap={msg.role === ROLE_USER ? 0 : 4}
-                            width={msg.role === ROLE_USER ? "unset" : "100%"}
-                          >
-                            {msg.role === ROLE_ASSISTANT && (
-                              <Box>
-                                <HiOutlineSparkles size={30} />
-                              </Box>
-                            )}
-                            <Box
-                              bg={
+              {params?.id && getMessageLoader ? (
+                <GradientLoader />
+              ) : (
+                <>
+                  <VStack align="stretch" mx={0} width="100%">
+                    {messages &&
+                      messages.length > 0 &&
+                      messages?.map((msg, index) => {
+                        return (
+                          <Fragment key={msg.text}>
+                            <Flex
+                              key={index}
+                              align={
                                 msg.role === ROLE_USER
-                                  ? colorMode === "light"
-                                    ? "gray.200"
-                                    : "gray.600"
-                                  : colorMode === "light"
-                                  ? ""
-                                  : ""
+                                  ? "flex-end"
+                                  : "flex-start"
                               }
-                              px={msg.role === ROLE_USER ? 4 : 0}
-                              py={msg.role === ROLE_USER ? 2.5 : 0}
-                              borderRadius="lg"
-                              transition="background 0.3s ease-in"
-                              width={"100%"}
-                              overflow={"auto"}
+                              direction="column"
+                              w="full"
+                              mb={msg.role === ROLE_USER ? 8 : 0}
                             >
-                              {msg.role === ROLE_ASSISTANT ? (
-                                msg.isLoading ? (
-                                  <Text>Intellihub is thinking...</Text>
-                                ) : (
-                                  <Markdown
-                                    components={customMarkdownTheme}
-                                    rehypePlugins={[[remarkGfm]]}
-                                  >
-                                    {msg.content}
-                                  </Markdown>
-                                )
-                              ) : (
-                                <Text whiteSpace="pre-wrap">{msg.content}</Text>
-                              )}
-                            </Box>
-                          </Flex>
-                          {msg.role === ROLE_ASSISTANT &&
-                            !msg.isLoading &&
-                            isStreamComplete && (
-                              <Box>
-                                {isCopied && selectedIndex === index ? (
-                                  <IconButton
-                                    bg="transparent"
-                                    icon={<HiMiniCheck size={20} />}
-                                    _hover={{ bg: "transparent" }}
-                                    _active={{ bg: "transparent" }}
-                                    _focusVisible={{
-                                      bg: "transparent",
-                                      outline: "none",
-                                    }}
-                                    cursor="default"
-                                  />
-                                ) : (
-                                  <IconButton
-                                    bg="transparent"
-                                    icon={<PiCopySimple size={20} />}
-                                    _hover={{ bg: "transparent" }}
-                                    _active={{ bg: "transparent" }}
-                                    _focusVisible={{
-                                      bg: "transparent",
-                                      outline: "none",
-                                    }}
-                                    onClick={() =>
-                                      handleCopy(msg.content, index)
-                                    }
-                                  />
+                              <Flex
+                                align="unset"
+                                gap={msg.role === ROLE_USER ? 0 : 4}
+                                width={
+                                  msg.role === ROLE_USER ? "unset" : "100%"
+                                }
+                              >
+                                {msg.role === ROLE_ASSISTANT && (
+                                  <Box>
+                                    <HiOutlineSparkles size={30} />
+                                  </Box>
                                 )}
-                              </Box>
-                            )}
-                        </Flex>
-                      </Fragment>
-                    );
-                  })}
-                <div ref={chatEndRef} />
-              </VStack>
+                                <Box
+                                  bg={
+                                    msg.role === ROLE_USER
+                                      ? colorMode === "light"
+                                        ? "gray.200"
+                                        : "gray.600"
+                                      : colorMode === "light"
+                                      ? ""
+                                      : ""
+                                  }
+                                  px={msg.role === ROLE_USER ? 4 : 0}
+                                  py={msg.role === ROLE_USER ? 2.5 : 0}
+                                  borderRadius="lg"
+                                  transition="background 0.3s ease-in"
+                                  width={"100%"}
+                                  overflow={"auto"}
+                                >
+                                  {msg.role === ROLE_ASSISTANT ? (
+                                    msg.isLoading ? (
+                                      <Text>Intellihub is thinking...</Text>
+                                    ) : (
+                                      <Markdown
+                                        components={customMarkdownTheme}
+                                        rehypePlugins={[[remarkGfm]]}
+                                      >
+                                        {msg.content}
+                                      </Markdown>
+                                    )
+                                  ) : (
+                                    <Text whiteSpace="pre-wrap">
+                                      {msg.content}
+                                    </Text>
+                                  )}
+                                </Box>
+                              </Flex>
+                              {msg.role === ROLE_ASSISTANT &&
+                                !msg.isLoading &&
+                                isStreamComplete && (
+                                  <Box>
+                                    {isCopied && selectedIndex === index ? (
+                                      <IconButton
+                                        bg="transparent"
+                                        icon={<HiMiniCheck size={20} />}
+                                        _hover={{ bg: "transparent" }}
+                                        _active={{ bg: "transparent" }}
+                                        _focusVisible={{
+                                          bg: "transparent",
+                                          outline: "none",
+                                        }}
+                                        cursor="default"
+                                      />
+                                    ) : (
+                                      <IconButton
+                                        bg="transparent"
+                                        icon={<PiCopySimple size={20} />}
+                                        _hover={{ bg: "transparent" }}
+                                        _active={{ bg: "transparent" }}
+                                        _focusVisible={{
+                                          bg: "transparent",
+                                          outline: "none",
+                                        }}
+                                        onClick={() =>
+                                          handleCopy(msg.content, index)
+                                        }
+                                      />
+                                    )}
+                                  </Box>
+                                )}
+                            </Flex>
+                          </Fragment>
+                        );
+                      })}
+                  </VStack>
+                  <div ref={chatEndRef} />
+                </>
+              )}
             </Box>
           </Flex>
           <Box as="footer" py={4}>
-            <Flex>
+            {accessToken && (
               <Badge
                 variant="subtle"
                 colorScheme="gray"
@@ -423,7 +442,7 @@ const Home = () => {
                 </Text>{" "}
                 model
               </Badge>
-            </Flex>
+            )}
             <FormInput
               name="promptInput"
               id="promptInput"
