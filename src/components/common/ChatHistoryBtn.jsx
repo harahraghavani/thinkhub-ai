@@ -26,7 +26,7 @@ const ChatHistoryBtn = () => {
             rounded={"xl"}
             size={"md"}
             onClick={() => {
-              router.push("chat/history");
+              router.push("/chat/history");
             }}
           />
         </Tooltip>

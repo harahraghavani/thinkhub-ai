@@ -55,7 +55,7 @@ const FirebaseProvider = ({ children }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [getMessageLoader, setGetMessageLoader] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
-  const [isChatLoading, setIsChatLoading] = useState(false);
+  const [isChatLoading, setIsChatLoading] = useState(true);
 
   // COOKIE DATA
   const accessToken = getCookie(USER_ACCESS_TOKEN);
@@ -196,6 +196,7 @@ const FirebaseProvider = ({ children }) => {
       setChatHistory(chatsData);
       setIsChatLoading(false);
     } catch (error) {
+      setIsChatLoading(false);
     } finally {
       setIsChatLoading(false);
     }
