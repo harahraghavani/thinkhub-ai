@@ -16,6 +16,7 @@ import {
   getCookie,
 } from "../../utility/utils/utils";
 import {
+  CHATS_PER_PAGE,
   INTELLIHUB_SELECTED_MODEL,
   USER_ACCESS_TOKEN,
   USER_DATA,
@@ -24,12 +25,15 @@ import {
   arrayUnion,
   collection,
   doc,
+  endBefore,
+  getCountFromServer,
   getDoc,
   getDocs,
   getFirestore,
-  orderBy,
+  limit,
   query,
   setDoc,
+  startAfter,
   updateDoc,
 } from "firebase/firestore";
 import { useRouter } from "next/navigation";
@@ -175,7 +179,6 @@ const FirebaseProvider = ({ children }) => {
   const getChatHistoryData = async () => {
     setIsChatLoading(true);
     try {
-      // Get all chat IDs for the user
       const chatsRef = collection(DATABASE, "users", user.uid, "chats");
       const chatSnapshot = await getDocs(chatsRef);
 
@@ -193,11 +196,10 @@ const FirebaseProvider = ({ children }) => {
 
       const chatsData = await Promise.all(chatsPromises);
 
+      // update the states
       setChatHistory(chatsData);
       setIsChatLoading(false);
     } catch (error) {
-      setIsChatLoading(false);
-    } finally {
       setIsChatLoading(false);
     }
   };

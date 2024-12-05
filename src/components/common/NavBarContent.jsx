@@ -1,11 +1,12 @@
 import { useFirebase } from "@/hooks/firebase/useFirebase";
 import { Avatar, Button, Flex } from "@chakra-ui/react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { FaHistory } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
 
 const NavBarContent = ({ onClose }) => {
   const pathname = usePathname();
+  const router = useRouter();
   const { userData, firebaseMethods } = useFirebase();
   const { logoutUser, createNewChat } = firebaseMethods;
 
@@ -17,7 +18,7 @@ const NavBarContent = ({ onClose }) => {
       height="100%"
     >
       <Flex direction="column" gap={4}>
-        <Button
+        {/* <Button
           leftIcon={<IoMdAdd />}
           onClick={() => {
             createNewChat();
@@ -26,9 +27,16 @@ const NavBarContent = ({ onClose }) => {
           disabled={pathname === "/"}
         >
           New Chat
-        </Button>
+        </Button> */}
         {pathname !== "/chat/history" && (
-          <Button leftIcon={<FaHistory />}>Chat History</Button>
+          <Button
+            leftIcon={<FaHistory />}
+            onClick={() => {
+              router.push("/chat/history");
+            }}
+          >
+            Chat History
+          </Button>
         )}
       </Flex>
       {userData && (

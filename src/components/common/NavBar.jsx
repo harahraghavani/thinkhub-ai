@@ -1,8 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Box,
+  Button,
   Flex,
   Heading,
   IconButton,
@@ -15,15 +16,20 @@ import NavBarUserProfileMenu from "./NavBarUserProfileMenu";
 import { RxHamburgerMenu } from "react-icons/rx";
 import CommonDrawer from "./CommonDrawer";
 import NavBarContent from "./NavBarContent";
+import { IoMdAdd } from "react-icons/io";
+import { useFirebase } from "@/hooks/firebase/useFirebase";
 
 const NabBar = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const { colorMode } = useColorMode();
   const {
     isOpen: isNavbarOpen,
     onClose: toggleNavbar,
     onOpen: openNavBar,
   } = useDisclosure();
+  const { firebaseMethods, userData } = useFirebase();
+  const { createNewChat } = firebaseMethods;
 
   return (
     <Box
@@ -36,32 +42,58 @@ const NabBar = () => {
           : "0 0 10px rgba(255, 255, 255, 0.2)"
       }
     >
-      <Flex justifyContent={"space-between"} alignItems={"center"} p={"20px"}>
-        <Box display={{ base: "block", lg: "none" }}>
-          <IconButton
-            aria-label="Create New Chat"
-            icon={<RxHamburgerMenu />}
-            variant="solid"
-            rounded={"xl"}
-            size={"md"}
-            onClick={openNavBar}
-          />
-        </Box>
+      <Flex
+        justifyContent="space-between"
+        alignItems={"center"}
+        py={"20px"}
+        px={{
+          base: "12px",
+          md: "20px",
+        }}
+      >
+        {userData && (
+          <Box display={{ base: "block", lg: "none" }}>
+            <IconButton
+              aria-label="Create New Chat"
+              icon={<RxHamburgerMenu />}
+              variant="solid"
+              rounded={"xl"}
+              size={"md"}
+              onClick={openNavBar}
+            />
+          </Box>
+        )}
         <Heading
           as="h1"
           size="md"
           display={{
-            base: "none",
+            base: userData ? "none" : "block",
             lg: "block",
           }}
         >
           IntelliHub AI
         </Heading>
-        <Flex gap={4} alignItems={"center"}>
+        <Flex gap={3} alignItems={"center"}>
           {/* COLOR MODE BUTTON */}
           <NavBarColorModeBtn />
           {/* SETTING BUTTON */}
           <NavBarSettingBtn />
+          {/* CREATE CHAT BUTTON */}
+          {userData && (
+            <Button
+              display={{
+                base: "block",
+                md: "none",
+              }}
+              leftIcon={<IoMdAdd />}
+              onClick={() => {
+                createNewChat();
+              }}
+              disabled={pathname === "/"}
+            >
+              New Chat
+            </Button>
+          )}
           {/* USER PROFILE MENU & LOGIN BUTTON */}
           <NavBarUserProfileMenu />
         </Flex>

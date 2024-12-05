@@ -1,6 +1,7 @@
 "use client";
-
-import { customMarkdownTheme } from "@/components/common/Home";
+import CreateNewChatBtn from "@/components/common/CreateNewChatBtn";
+import NoDataFound from "@/components/common/NoDataFound";
+import { GREETINGS_KEYWORDS } from "@/constant/appConstant";
 import { useFirebase } from "@/hooks/firebase/useFirebase";
 import { formateString, truncateText } from "@/utility/utils/utils";
 import {
@@ -10,14 +11,17 @@ import {
   Container,
   Flex,
   Grid,
+  Skeleton,
   Text,
+  useColorMode,
   VStack,
 } from "@chakra-ui/react";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 
 export default function ChatHistoryComponent() {
+  const router = useRouter();
+  const { colorMode } = useColorMode();
   const { firebaseMethods, states } = useFirebase();
   const { user, chatHistory, isChatLoading } = states;
   const { getChatHistoryData } = firebaseMethods;
@@ -34,8 +38,7 @@ export default function ChatHistoryComponent() {
     let assistantMessage = messages[1];
 
     // Check if the first message is a greeting
-    const greetings = ["hello", "hi", "hey", "greetings"];
-    const isGreeting = greetings.some((greeting) =>
+    const isGreeting = GREETINGS_KEYWORDS.some((greeting) =>
       userMessage.content.toLowerCase().startsWith(greeting)
     );
 
@@ -72,31 +75,90 @@ export default function ChatHistoryComponent() {
       overflow="hidden"
       padding={0}
     >
+      <Box
+        display={{
+          base: "none",
+          lg: "block",
+        }}
+      >
+        <CreateNewChatBtn />
+      </Box>
       <Flex direction="column" height="calc(100vh - 80px)" width="100%" py={5}>
-        <Flex direction="column" overflow="auto">
+        <Flex
+          direction="column"
+          sx={{
+            paddingRight: {
+              base: 0,
+              md: "12px",
+            },
+            overflowY: {
+              base: "scroll",
+              md: "auto",
+            },
+            "&::-webkit-scrollbar": {
+              width: "5px",
+            },
+            "&::-webkit-scrollbar-track": {
+              background: {
+                base: "transparent",
+                md: colorMode === "dark" ? "gray.600" : "gray.300",
+              },
+              borderRadius: "4px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: {
+                base: "transparent",
+                md: colorMode === "dark" ? "gray.400" : "gray.500",
+              },
+              borderRadius: "4px",
+            },
+          }}
+        >
           {isChatLoading ? (
-            <Text>Loading...</Text>
+            <Text>
+              <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
+              <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
+              <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
+              <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
+              <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
+            </Text>
           ) : (
-            <Grid gap={4}>
-              {chatHistory?.length > 0 ? (
-                chatHistory.map((chat) => {
-                  const content = renderChatContent(chat.messages);
-                  return (
-                    content && (
-                      <Card
-                        key={chat.id}
-                        boxShadow={"inner"}
-                        border={"1px solid #ccc"}
-                      >
-                        <CardBody p={3}>{content}</CardBody>
-                      </Card>
-                    )
-                  );
-                })
-              ) : (
-                <Text>No chat history</Text>
-              )}
-            </Grid>
+            <>
+              <Grid gap={4}>
+                {chatHistory?.length > 0 ? (
+                  chatHistory.map((chat) => {
+                    const chatId = chat?.id;
+                    const content = renderChatContent(chat.messages);
+
+                    return (
+                      content && (
+                        <Card
+                          key={chat.id}
+                          boxShadow={"inner"}
+                          border={`1px solid ${
+                            colorMode === "dark"
+                              ? "rgba(255,255,255, 0.3)"
+                              : "#ccc"
+                          }`}
+                          cursor={"pointer"}
+                          onClick={() => {
+                            if (chatId) {
+                              router.push(`/chat/${chatId}`);
+                            }
+                          }}
+                        >
+                          <CardBody p={3}>{content}</CardBody>
+                        </Card>
+                      )
+                    );
+                  })
+                ) : (
+                  <>
+                    <NoDataFound message="No chat history found" />
+                  </>
+                )}
+              </Grid>
+            </>
           )}
         </Flex>
       </Flex>

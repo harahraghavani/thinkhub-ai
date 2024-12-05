@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Button, Flex } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, VStack } from "@chakra-ui/react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import { FaGoogle } from "react-icons/fa6";
@@ -32,6 +32,7 @@ const AuthenticationPage = () => {
       alignItems="center"
       justifyContent="center"
       position="relative"
+      bg="black"
     >
       <Box
         position="absolute"
@@ -49,28 +50,71 @@ const AuthenticationPage = () => {
           />
         )}
       </Box>
-      <Button
-        size={"md"}
-        leftIcon={<FaGoogle />}
-        color="white"
-        variant="outline"
-        onClick={signUpWithGoogle}
-        isLoading={isLoading}
-        isDisabled={isLoading}
-        loadingText="Authenticating..."
-        backgroundColor="rgba(255, 255, 255, 0.2)" // Light transparent background
-        backdropFilter="blur(100px)" // Adjusted blur value
-        border="1px solid rgba(255, 255, 255, 0.3)" // Light border for a more glass-like appearance
-        _hover={{
-          backgroundColor: "rgba(255, 255, 255, 0.2)", // Slightly darker on hover for a more interactive feel
-          backdropFilter: "blur(15px)", // Increased blur on hover
+
+      {/* Glassmorphism Card */}
+      <Box
+        backgroundColor="rgba(255, 255, 255, 0.12)"
+        backdropFilter="blur(7px)"
+        border="1px solid rgba(255, 255, 255, 0.1)"
+        borderRadius="24px"
+        boxShadow="0 4px 30px rgba(0, 0, 0, 0.1)"
+        padding={{
+          base: "30px 10px",
+          md: "40px",
         }}
-        boxShadow="0 4px 30px rgba(0, 0, 0, 0.1)" // Soft shadow for a floating effect
-        borderRadius="full" // Rounded corners
-        zIndex={1} // Ensure button is above particles
+        maxWidth={{ base: "450px", md: "450px" }}
+        width={{
+          base: "90%",
+          md: "100%",
+        }}
+        zIndex={1}
       >
-        Continue with Google
-      </Button>
+        <VStack spacing={6}>
+          <Text
+            fontSize={{
+              base: "2xl",
+              md: "3xl",
+            }}
+            fontWeight="bold"
+            color="white"
+            textAlign="center"
+            textShadow="0 2px 10px rgba(0,0,0,0.5)"
+          >
+            Welcome to IntelliHub AI
+          </Text>
+          <Text fontSize="md" color="whiteAlpha.700" textAlign="center">
+            Creativity with advanced AI solutions. <br />
+            Sign in with Google to begin your journey
+          </Text>
+          <Button
+            size="lg"
+            width="full"
+            leftIcon={<FaGoogle />}
+            color="white"
+            variant="outline"
+            onClick={signUpWithGoogle}
+            isLoading={isLoading}
+            isDisabled={isLoading}
+            loadingText="Authenticating..."
+            backgroundColor="rgba(255, 255, 255, 0.12)"
+            backdropFilter="blur(7px)"
+            border="1px solid rgba(255, 255, 255, 0.1)"
+            _hover={{
+              backgroundColor: "rgba(255, 255, 255, 0.08)",
+              boxShadow: "0 4px 40px rgba(0, 0, 0, 0.2)",
+            }}
+            _active={{
+              backgroundColor: "rgba(255, 255, 255, 0.2)",
+            }}
+            borderRadius="full"
+            height="50px"
+            fontSize="md"
+            transition="all 0.3s ease"
+          >
+            Continue with Google
+          </Button>
+        </VStack>
+      </Box>
     </Flex>
   );
 };
