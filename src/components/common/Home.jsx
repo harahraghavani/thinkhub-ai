@@ -158,16 +158,21 @@ const Home = () => {
   // States
   const [isCopied, setIsCopied] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
-  const [isStreamComplete, setIsStreamComplete] = useState(false);
-  const [isCreatingNewChat, setIsCreatingNewChat] = useState(false);
+  // const [isStreamComplete, setIsStreamComplete] = useState(false);
 
   // Custome hooks
-  // const { messages, setMessages } = useChatMessages();
-  const { accessToken, firebaseMethods, states } = useFirebase();
-  const { messages, isGenerating, user, getMessageLoader, setMessages } =
-    states;
+  const { accessToken, firebaseMethods, states, startChatBtnClick } =
+    useFirebase();
+  const {
+    messages,
+    user,
+    getMessageLoader,
+    setMessages,
+    isStreamComplete,
+    setIsStreamComplete,
+  } = states;
 
-  const { createMessageReference, getChatByChatID } = firebaseMethods;
+  const { createMessageReference } = firebaseMethods;
   const { selectedAIModel } = useChangeModel();
 
   // react hook form
@@ -223,10 +228,7 @@ const Home = () => {
       return;
     }
 
-    if (!params?.id) {
-      setIsCreatingNewChat(true);
-    }
-
+    startChatBtnClick.current = true;
     setIsStreamComplete(false);
     const newUserMessage = { role: ROLE_USER, content: inputValue };
     setMessages((prevMessages) => [...prevMessages, newUserMessage]);
@@ -266,8 +268,10 @@ const Home = () => {
 
   const storeDataInFirebase = async (messagesToStore) => {
     const chatId = params?.id ? params.id : uuidv4();
-    createMessageReference(messagesToStore, chatId);
+    startChatBtnClick.current &&
+      createMessageReference(messagesToStore, chatId);
     !params?.id && router.replace(`/chat/${chatId}`);
+    startChatBtnClick.current = false;
   };
 
   useEffect(() => {
@@ -275,13 +279,6 @@ const Home = () => {
       storeDataInFirebase(messages);
     }
   }, [isStreamComplete, messages, storeDataInFirebase]);
-
-  useEffect(() => {
-    if (user && params?.id) {
-      getChatByChatID(params?.id);
-      setIsStreamComplete(true);
-    }
-  }, [user, params?.id]);
 
   // Auto-scroll to the latest message
   useEffect(() => {
@@ -459,7 +456,9 @@ const Home = () => {
               errors={errors}
               rules={{}}
               placeHolderText="Message IntelliHub"
-              sendOnClick={handleSendMessage}
+              sendOnClick={async () => {
+                await handleSendMessage();
+              }}
               btnDisabled={!inputValue}
             />
           </Box>

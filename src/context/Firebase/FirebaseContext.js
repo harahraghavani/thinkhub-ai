@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import MY_APP from "../../config/FirebaseConfig";
 import {
   GoogleAuthProvider,
@@ -36,13 +36,14 @@ import {
   startAfter,
   updateDoc,
 } from "firebase/firestore";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 const FirebaseContext = createContext();
 
 const FirebaseProvider = ({ children }) => {
   // REACT ROUTER
   const router = useRouter();
+  const params = useParams();
 
   // FIREBASE
   const auth = getAuth(MY_APP);
@@ -51,6 +52,7 @@ const FirebaseProvider = ({ children }) => {
 
   // hooks
   const toast = useToast();
+  const startChatBtnClick = useRef(false);
 
   // states
   const [isLoading, setIsLoading] = useState(false);
@@ -60,6 +62,7 @@ const FirebaseProvider = ({ children }) => {
   const [getMessageLoader, setGetMessageLoader] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
   const [isChatLoading, setIsChatLoading] = useState(true);
+  const [isStreamComplete, setIsStreamComplete] = useState(false);
 
   // COOKIE DATA
   const accessToken = getCookie(USER_ACCESS_TOKEN);
@@ -168,6 +171,7 @@ const FirebaseProvider = ({ children }) => {
         setGetMessageLoader(false);
       }
     }
+    setIsStreamComplete(true);
     setGetMessageLoader(false);
   };
 
@@ -205,6 +209,13 @@ const FirebaseProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    if (user) {
+      getChatByChatID(params?.id);
+    }
+    // eslint-disable-next-line
+  }, [user]);
+
+  useEffect(() => {
     isUserExist();
     // eslint-disable-next-line
   }, []);
@@ -229,9 +240,12 @@ const FirebaseProvider = ({ children }) => {
       isChatLoading,
       chatHistory,
       setIsChatLoading,
+      isStreamComplete,
+      setIsStreamComplete,
     },
     accessToken,
     userData,
+    startChatBtnClick,
   };
 
   return (
