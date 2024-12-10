@@ -8,7 +8,13 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 
-const CommonModal = ({ children, title = "", isOpen, onClose }) => {
+const CommonModal = ({
+  children,
+  title = "",
+  isOpen,
+  onClose,
+  baseWidth = "xs",
+}) => {
   return (
     <Modal
       closeOnOverlayClick={false}
@@ -19,7 +25,7 @@ const CommonModal = ({ children, title = "", isOpen, onClose }) => {
       <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
       <ModalContent
         maxW={{
-          base: "xs",
+          base: baseWidth,
           md: "md",
         }}
       >

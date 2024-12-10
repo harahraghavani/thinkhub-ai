@@ -19,6 +19,7 @@
     "@tsparticles/engine": "^3.5.0",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.5.0",
+    "@vercel/analytics": "^1.4.1",
     "ai": "^3.4.17",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.5",

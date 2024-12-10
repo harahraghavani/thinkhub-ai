@@ -24,6 +24,7 @@ import {
 import {
   arrayUnion,
   collection,
+  deleteDoc,
   doc,
   endBefore,
   getCountFromServer,
@@ -62,7 +63,7 @@ const FirebaseProvider = ({ children }) => {
   const [getMessageLoader, setGetMessageLoader] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
   const [isChatLoading, setIsChatLoading] = useState(true);
-  const [isStreamComplete, setIsStreamComplete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // COOKIE DATA
   const accessToken = getCookie(USER_ACCESS_TOKEN);
@@ -162,7 +163,7 @@ const FirebaseProvider = ({ children }) => {
 
   const getChatByChatID = async (id) => {
     setGetMessageLoader(true);
-    if (user) {
+    if (user && id) {
       const chatDocRef = doc(DATABASE, "users", user.uid, "chats", id);
       const chatDocSnap = await getDoc(chatDocRef);
       if (chatDocSnap.exists()) {
@@ -171,7 +172,7 @@ const FirebaseProvider = ({ children }) => {
         setGetMessageLoader(false);
       }
     }
-    setIsStreamComplete(true);
+
     setGetMessageLoader(false);
   };
 
@@ -208,12 +209,31 @@ const FirebaseProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      getChatByChatID(params?.id);
+  const deleteChatHistoryById = async (chatId) => {
+    setIsDeleting(true);
+    try {
+      const chatDocRef = doc(DATABASE, "users", user.uid, "chats", chatId);
+      await deleteDoc(chatDocRef);
+      await getChatHistoryData(); // Refresh the chat list
+      toast({
+        title: "Chat deleted successfully",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
+      setIsDeleting(false);
+    } catch (error) {
+      toast({
+        title: "Error occurred while deleting chat",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
+      setIsDeleting(false);
     }
-    // eslint-disable-next-line
-  }, [user]);
+  };
 
   useEffect(() => {
     isUserExist();
@@ -228,6 +248,7 @@ const FirebaseProvider = ({ children }) => {
       getChatByChatID,
       createNewChat,
       getChatHistoryData,
+      deleteChatHistoryById,
     },
     states: {
       isLoading,
@@ -240,8 +261,7 @@ const FirebaseProvider = ({ children }) => {
       isChatLoading,
       chatHistory,
       setIsChatLoading,
-      isStreamComplete,
-      setIsStreamComplete,
+      isDeleting,
     },
     accessToken,
     userData,

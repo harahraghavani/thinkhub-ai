@@ -36,6 +36,9 @@ const NoDataFound = ({ message }) => {
               height={lottieSize}
               width={lottieSize}
               isClickToPauseDisabled={true}
+              style={{
+                cursor: "default",
+              }}
             />
             <Heading
               size={{

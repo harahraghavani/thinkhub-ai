@@ -158,21 +158,14 @@ const Home = () => {
   // States
   const [isCopied, setIsCopied] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
-  // const [isStreamComplete, setIsStreamComplete] = useState(false);
+  const [isStreamComplete, setIsStreamComplete] = useState(false);
 
   // Custome hooks
   const { accessToken, firebaseMethods, states, startChatBtnClick } =
     useFirebase();
-  const {
-    messages,
-    user,
-    getMessageLoader,
-    setMessages,
-    isStreamComplete,
-    setIsStreamComplete,
-  } = states;
+  const { messages, user, getMessageLoader, setMessages } = states;
 
-  const { createMessageReference } = firebaseMethods;
+  const { createMessageReference, getChatByChatID } = firebaseMethods;
   const { selectedAIModel } = useChangeModel();
 
   // react hook form
@@ -279,6 +272,14 @@ const Home = () => {
       storeDataInFirebase(messages);
     }
   }, [isStreamComplete, messages, storeDataInFirebase]);
+
+  useEffect(() => {
+    if (user && params?.id) {
+      getChatByChatID(params?.id);
+      setIsStreamComplete(true);
+    }
+    // eslint-disable-next-line
+  }, [user, params?.id]);
 
   // Auto-scroll to the latest message
   useEffect(() => {
