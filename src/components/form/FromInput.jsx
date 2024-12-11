@@ -69,7 +69,6 @@ const FormInput = ({
           height="45px"
           minHeight={"45px"}
           maxHeight={"100px"}
-          autoFocus={true}
           onChange={handleChange}
           autoComplete="off"
           isInvalid={!!errors[name]}

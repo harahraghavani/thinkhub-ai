@@ -33,6 +33,7 @@ import AuthModalContent from "./AuthModalContent";
 import { useChangeModel } from "@/hooks/changeModel/useChangeModel";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import GradientLoader from "../home/GradientLoader";
+import { formateString } from "@/utility/utils/utils";
 
 const Home = () => {
   const customMarkdownTheme = {
@@ -180,25 +181,7 @@ const Home = () => {
 
   const handleCopy = (text, index) => {
     // Check if the text is a code block
-    const isCodeBlock = text.startsWith("```") && text.endsWith("```");
-
-    let plainText;
-    if (isCodeBlock) {
-      // For code blocks, remove the backticks and language identifier
-      plainText = text
-        .replace(/^```[\w-]*\n/, "") // Remove opening ```language
-        .replace(/```$/, "") // Remove closing ```
-        .trim();
-    } else {
-      // For regular text, remove Markdown formatting
-      plainText = text
-        .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
-        .replace(/\*(.*?)\*/g, "$1") // Remove italic
-        .replace(/\[(.*?)\]$$.*?$$/g, "$1") // Remove links
-        .replace(/^#+\s/gm, "") // Remove heading markers
-        .replace(/^[-*+]\s/gm, "") // Remove list item markers
-        .trim();
-    }
+    const plainText = formateString(text);
 
     navigator.clipboard.writeText(plainText).then(() => {
       setSelectedIndex(index);
