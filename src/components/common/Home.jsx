@@ -206,7 +206,7 @@ const Home = () => {
 
     startChatBtnClick.current = true;
     setIsStreamComplete(false);
-    const newUserMessage = { role: ROLE_USER, content: inputValue };
+    const newUserMessage = { role: ROLE_USER, content: inputValue?.trim() };
     setMessages((prevMessages) => [...prevMessages, newUserMessage]);
 
     // Start with an empty assistant message
@@ -364,7 +364,7 @@ const Home = () => {
                                     )
                                   ) : (
                                     <Text whiteSpace="pre-wrap">
-                                      {msg.content}
+                                      {msg?.content?.trim()}
                                     </Text>
                                   )}
                                 </Box>
