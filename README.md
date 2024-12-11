@@ -1,36 +1,18 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IntelliHub-AI
 
-## Getting Started
+IntelliHub-AI is an advanced AI chat application that leverages cutting-edge technologies to provide a seamless and intelligent conversational experience.
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Frontend Framework**: [Next.js](https://nextjs.org/) with App Router
+- **Database**: [Firebase](https://firebase.google.com/)
+- **AI Integration**: [Vercel AI SDK](https://sdk.vercel.ai/)
+- **Language Model**: [Google Gemini API](https://ai.google.dev/docs/gemini_api_overview) for text-to-text generation
+- **Deployment**: [Vercel](https://vercel.com/)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **User Authentication**: Seamless sign-up and login functionality using Google authentication
+- **Text-to-Text Interaction**: Engage in natural language conversations with the AI powered by Google Gemini
+- **Response Saving**: Automatically save and retrieve AI-generated responses for future reference
+- **Responsive Design**: Fully responsive user interface for optimal experience across devices
