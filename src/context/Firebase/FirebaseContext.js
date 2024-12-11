@@ -16,7 +16,6 @@ import {
   getCookie,
 } from "../../utility/utils/utils";
 import {
-  CHATS_PER_PAGE,
   INTELLIHUB_SELECTED_MODEL,
   USER_ACCESS_TOKEN,
   USER_DATA,
@@ -26,30 +25,26 @@ import {
   collection,
   deleteDoc,
   doc,
-  endBefore,
-  getCountFromServer,
   getDoc,
   getDocs,
   getFirestore,
-  limit,
-  query,
   setDoc,
-  startAfter,
   updateDoc,
 } from "firebase/firestore";
-import { useParams, useRouter } from "next/navigation";
+import { getStorage, ref } from "firebase/storage";
+import { useRouter } from "next/navigation";
 
 const FirebaseContext = createContext();
 
 const FirebaseProvider = ({ children }) => {
   // REACT ROUTER
   const router = useRouter();
-  const params = useParams();
 
   // FIREBASE
   const auth = getAuth(MY_APP);
   const googleProvider = new GoogleAuthProvider();
   const DATABASE = getFirestore(MY_APP);
+  const STORAGE = getStorage(MY_APP);
 
   // hooks
   const toast = useToast();

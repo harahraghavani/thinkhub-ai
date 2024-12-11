@@ -23,6 +23,14 @@ import {
   useColorMode,
   useDisclosure,
   Badge,
+  Switch,
+  Tooltip,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverBody,
 } from "@chakra-ui/react";
 
 import { generateStreamedTextData } from "@/server/server";
@@ -34,6 +42,7 @@ import { useChangeModel } from "@/hooks/changeModel/useChangeModel";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import GradientLoader from "../home/GradientLoader";
 import { formateString } from "@/utility/utils/utils";
+import { FaRegQuestionCircle } from "react-icons/fa";
 
 const Home = () => {
   const customMarkdownTheme = {
@@ -160,6 +169,7 @@ const Home = () => {
   const [isCopied, setIsCopied] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [isStreamComplete, setIsStreamComplete] = useState(false);
+  const [isImageGeneration, setIsImageGeneration] = useState(false);
 
   // Custome hooks
   const { accessToken, firebaseMethods, states, startChatBtnClick } =
@@ -221,45 +231,47 @@ const Home = () => {
     const { output } = await generateStreamedTextData({
       messages: [...messages, newUserMessage],
       model: selectedAIModel,
+      prompt: inputValue,
+      isImageGeneration: true,
     });
 
-    let fullContent = "";
-    for await (const delta of readStreamableValue(output)) {
-      fullContent += delta;
+    // let fullContent = "";
+    // for await (const delta of readStreamableValue(output)) {
+    //   fullContent += delta;
 
-      // Update the last message (assistant's message) with the new content
-      setMessages((prevMessages) => {
-        const updatedMessages = [...prevMessages];
-        updatedMessages[updatedMessages.length - 1] = {
-          ...updatedMessages[updatedMessages.length - 1],
-          content: fullContent,
-          isLoading: false,
-        };
-        return updatedMessages;
-      });
-    }
+    //   // Update the last message (assistant's message) with the new content
+    //   setMessages((prevMessages) => {
+    //     const updatedMessages = [...prevMessages];
+    //     updatedMessages[updatedMessages.length - 1] = {
+    //       ...updatedMessages[updatedMessages.length - 1],
+    //       content: fullContent,
+    //       isLoading: false,
+    //     };
+    //     return updatedMessages;
+    //   });
+    // }
 
-    setIsStreamComplete(true);
+    // setIsStreamComplete(true);
   };
 
   const storeDataInFirebase = async (messagesToStore) => {
-    const chatId = params?.id ? params.id : uuidv4();
-    startChatBtnClick.current &&
-      createMessageReference(messagesToStore, chatId);
-    !params?.id && router.replace(`/chat/${chatId}`);
-    startChatBtnClick.current = false;
+    // const chatId = params?.id ? params.id : uuidv4();
+    // startChatBtnClick.current &&
+    //   createMessageReference(messagesToStore, chatId);
+    // !params?.id && router.replace(`/chat/${chatId}`);
+    // startChatBtnClick.current = false;
   };
 
   useEffect(() => {
     if (isStreamComplete) {
-      storeDataInFirebase(messages);
+      // storeDataInFirebase(messages);
     }
   }, [isStreamComplete, messages, storeDataInFirebase]);
 
   useEffect(() => {
     if (user && params?.id) {
-      getChatByChatID(params?.id);
-      setIsStreamComplete(true);
+      // getChatByChatID(params?.id);
+      // setIsStreamComplete(true);
     }
     // eslint-disable-next-line
   }, [user, params?.id]);
@@ -414,24 +426,89 @@ const Home = () => {
           </Flex>
           <Box as="footer" py={4}>
             {accessToken && (
-              <Badge
-                variant="subtle"
-                colorScheme="gray"
-                textTransform={"none"}
-                rounded={"full"}
-                letterSpacing={0.3}
-                px={3}
+              <Flex
+                justify="space-between"
+                alignItems={{
+                  base: "flex-start",
+                  md: "center",
+                }}
+                flexDirection={{
+                  base: "column",
+                  md: "row",
+                }}
+                gap={{
+                  base: 1,
+                  md: 0,
+                }}
               >
-                You are using{" "}
-                <Text
-                  as="span"
-                  fontWeight="extrabold"
-                  textTransform="uppercase"
+                <Badge
+                  variant="subtle"
+                  colorScheme="gray"
+                  textTransform={"none"}
+                  rounded={"full"}
+                  letterSpacing={0.3}
+                  px={3}
                 >
-                  {selectedAIModel}
-                </Text>{" "}
-                model
-              </Badge>
+                  Current Model{" "}
+                  <Text
+                    as="span"
+                    fontWeight="extrabold"
+                    textTransform="uppercase"
+                  >
+                    {selectedAIModel}
+                  </Text>
+                </Badge>
+                <Flex
+                  alignItems="center"
+                  pr={{
+                    base: 0,
+                    md: 1.2,
+                  }}
+                  pl={{
+                    base: 2,
+                    md: 0,
+                  }}
+                >
+                  <Badge
+                    colorScheme="transparent"
+                    textTransform={"none"}
+                    rounded={"full"}
+                    letterSpacing={0.3}
+                    padding={0}
+                  >
+                    Want to generate an image
+                  </Badge>
+                  <Popover placement="top">
+                    <PopoverTrigger>
+                      <IconButton
+                        size="sm"
+                        background="transparent"
+                        _hover={{
+                          background: "transparent",
+                        }}
+                      >
+                        <FaRegQuestionCircle />
+                      </IconButton>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <PopoverArrow />
+                      {/* <PopoverCloseButton /> */}
+                      <PopoverBody>
+                        <Badge
+                          colorScheme="transparent"
+                          textTransform={"none"}
+                          rounded={"full"}
+                          letterSpacing={0.3}
+                          padding={0}
+                        >
+                          Toogle the switch to enable image generation
+                        </Badge>
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Popover>
+                  <Switch size="sm" />
+                </Flex>
+              </Flex>
             )}
             <FormInput
               name="promptInput"
