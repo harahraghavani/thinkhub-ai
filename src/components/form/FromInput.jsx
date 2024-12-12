@@ -28,6 +28,7 @@ const FormInput = ({
   sendOnClick,
   isLoading,
   btnDisabled,
+  labelMargin = "auto",
 }) => {
   const textareaRef = useRef(null);
   const [content, setContent] = useState("");
@@ -54,7 +55,9 @@ const FormInput = ({
 
   return (
     <FormControl id={id} isInvalid={!!errors[name]} width={"100%"}>
-      <FormLabel htmlFor={id}>{label}</FormLabel>
+      <FormLabel htmlFor={id} margin={labelMargin}>
+        {label}
+      </FormLabel>
       <InputGroup>
         <Textarea
           ref={(e) => {

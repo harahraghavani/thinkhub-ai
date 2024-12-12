@@ -72,6 +72,10 @@ export const formateString = (text) => {
 };
 
 export const truncateText = (text, maxLength = 100) => {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + "...";
+  if (text) {
+    if (text?.length <= maxLength) return text;
+    return text?.slice(0, maxLength) + "...";
+  } else {
+    return "Generated Image";
+  }
 };

@@ -2,8 +2,8 @@
 import { streamText } from "ai";
 import { createStreamableValue } from "ai/rsc";
 import { googleProvider, huggingFaceFluxProvider } from "@/utility/models";
-import { CLOUDINARY_CONFIG } from "@/config/CloudinaryConfig";
 import { v2 as cloudinary } from "cloudinary";
+import { FLUX_1_SCHNELL } from "@/constant/appConstant";
 
 const cloudinaryConfig = {
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -30,23 +30,28 @@ export const generateStreamedTextData = async ({
     if (isImageGeneration) {
       const response = await huggingFace.textToImage({
         inputs: prompt?.trim(),
-        model: "black-forest-labs/FLUX.1-schnell",
+        model: FLUX_1_SCHNELL,
         parameters: {
-          height: 512,
-          width: 512,
+          height: 1024,
+          width: 1024,
+          num_inference_steps: 4,
         },
       });
 
       const imageBuffer = await response.arrayBuffer();
 
       // Upload the image buffer to Cloudinary
-      const uploadToCloudinary = async (imageName) => {
+      const uploadToCloudinary = async ({ imageName }) => {
         try {
           const result = await cloudinary.uploader.upload(
             `data:image/png;base64,${Buffer.from(imageBuffer).toString(
               "base64"
             )}`,
-            { resource_type: "image", public_id: imageName }
+            {
+              resource_type: "image",
+              public_id: imageName,
+              quality_analysis: true,
+            }
           );
           return result;
         } catch (error) {
@@ -54,9 +59,9 @@ export const generateStreamedTextData = async ({
         }
       };
 
-      const uploadedImage = await uploadToCloudinary(
-        `intelliHub-ai-generated-${Math.random()}`
-      );
+      const uploadedImage = await uploadToCloudinary({
+        imageName: `intelliHub-ai-generated-${1 + Math.random()}`,
+      });
 
       return { output: uploadedImage };
     } else {
@@ -78,5 +83,16 @@ export const generateStreamedTextData = async ({
     }
   } catch (error) {
     return {};
+  }
+};
+
+export const deleteFile = async function ({ sourceFilePath }) {
+  try {
+    const result = await cloudinary.uploader.destroy(sourceFilePath);
+    console.log("result: ", result);
+
+    return {};
+  } catch (error) {
+    return { isSuccess: false };
   }
 };

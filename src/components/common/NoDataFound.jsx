@@ -11,7 +11,7 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 
-const NoDataFound = ({ message }) => {
+const NoDataFound = ({ message, lottieJSON = null }) => {
   const { colorMode } = useColorMode();
 
   const defaultOptions = {

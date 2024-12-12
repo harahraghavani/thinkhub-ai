@@ -3,8 +3,13 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import FormInput from "../form/FromInput";
-import { ROLE_ASSISTANT, ROLE_USER } from "@/constant/appConstant";
+import {
+  FLUX_1_SCHNELL,
+  ROLE_ASSISTANT,
+  ROLE_USER,
+} from "@/constant/appConstant";
 import { v4 as uuidv4 } from "uuid";
+import { MdDownload } from "react-icons/md";
 
 import { PiCopySimple } from "react-icons/pi";
 import { HiMiniCheck } from "react-icons/hi2";
@@ -31,6 +36,7 @@ import {
   PopoverArrow,
   PopoverCloseButton,
   PopoverBody,
+  Skeleton,
 } from "@chakra-ui/react";
 
 import { generateStreamedTextData } from "@/server/server";
@@ -43,6 +49,9 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import GradientLoader from "../home/GradientLoader";
 import { formateString } from "@/utility/utils/utils";
 import { FaRegQuestionCircle } from "react-icons/fa";
+import Image from "next/image";
+import { saveAs } from "file-saver";
+import ChatLoading from "./ChatLoading";
 
 const Home = () => {
   const customMarkdownTheme = {
@@ -174,6 +183,7 @@ const Home = () => {
   // Custome hooks
   const { accessToken, firebaseMethods, states, startChatBtnClick } =
     useFirebase();
+
   const { messages, user, getMessageLoader, setMessages } = states;
 
   const { createMessageReference, getChatByChatID } = firebaseMethods;
@@ -224,6 +234,7 @@ const Home = () => {
       role: ROLE_ASSISTANT,
       content: "",
       isLoading: true,
+      isImgLoading: true,
     };
     setMessages((prevMessages) => [...prevMessages, newAssistantMessage]);
 
@@ -232,46 +243,62 @@ const Home = () => {
       messages: [...messages, newUserMessage],
       model: selectedAIModel,
       prompt: inputValue,
-      isImageGeneration: true,
+      isImageGeneration,
     });
 
-    // let fullContent = "";
-    // for await (const delta of readStreamableValue(output)) {
-    //   fullContent += delta;
-
-    //   // Update the last message (assistant's message) with the new content
-    //   setMessages((prevMessages) => {
-    //     const updatedMessages = [...prevMessages];
-    //     updatedMessages[updatedMessages.length - 1] = {
-    //       ...updatedMessages[updatedMessages.length - 1],
-    //       content: fullContent,
-    //       isLoading: false,
-    //     };
-    //     return updatedMessages;
-    //   });
-    // }
-
-    // setIsStreamComplete(true);
+    if (isImageGeneration) {
+      setMessages((prevMessages) => {
+        const updatedMessages = [...prevMessages];
+        updatedMessages[updatedMessages.length - 1] = {
+          ...updatedMessages[updatedMessages.length - 1],
+          content: "Image Generation",
+          isLoading: false,
+          image: output,
+          isImgLoading: false,
+        };
+        return updatedMessages;
+      });
+      setIsImageGeneration(false);
+    } else {
+      let fullContent = "";
+      for await (const delta of readStreamableValue(output)) {
+        fullContent += delta;
+        // Update the last message (assistant's message) with the new content
+        setMessages((prevMessages) => {
+          const updatedMessages = [...prevMessages];
+          updatedMessages[updatedMessages.length - 1] = {
+            ...updatedMessages[updatedMessages.length - 1],
+            content: fullContent,
+            isLoading: false,
+            isImgLoading: false,
+            image: null,
+          };
+          return updatedMessages;
+        });
+      }
+    }
+    setIsImageGeneration(false);
+    setIsStreamComplete(true);
   };
 
   const storeDataInFirebase = async (messagesToStore) => {
-    // const chatId = params?.id ? params.id : uuidv4();
-    // startChatBtnClick.current &&
-    //   createMessageReference(messagesToStore, chatId);
-    // !params?.id && router.replace(`/chat/${chatId}`);
-    // startChatBtnClick.current = false;
+    const chatId = params?.id ? params.id : uuidv4();
+    startChatBtnClick.current &&
+      createMessageReference(messagesToStore, chatId);
+    !params?.id && router.replace(`/chat/${chatId}`);
+    startChatBtnClick.current = false;
   };
 
   useEffect(() => {
     if (isStreamComplete) {
-      // storeDataInFirebase(messages);
+      storeDataInFirebase(messages);
     }
   }, [isStreamComplete, messages, storeDataInFirebase]);
 
   useEffect(() => {
     if (user && params?.id) {
-      // getChatByChatID(params?.id);
-      // setIsStreamComplete(true);
+      getChatByChatID(params?.id);
+      setIsStreamComplete(true);
     }
     // eslint-disable-next-line
   }, [user, params?.id]);
@@ -341,11 +368,14 @@ const Home = () => {
                                   msg.role === ROLE_USER ? "unset" : "100%"
                                 }
                               >
-                                {msg.role === ROLE_ASSISTANT && (
-                                  <Box>
-                                    <HiOutlineSparkles size={30} />
-                                  </Box>
-                                )}
+                                {msg.role === ROLE_ASSISTANT &&
+                                  (msg.isLoading || msg.isImgLoading ? (
+                                    <ChatLoading />
+                                  ) : (
+                                    <Box>
+                                      <HiOutlineSparkles size={30} />
+                                    </Box>
+                                  ))}
                                 <Box
                                   bg={
                                     msg.role === ROLE_USER
@@ -364,7 +394,68 @@ const Home = () => {
                                   overflow={"auto"}
                                 >
                                   {msg.role === ROLE_ASSISTANT ? (
-                                    msg.isLoading ? (
+                                    isImageGeneration && msg.isImgLoading ? (
+                                      <Box
+                                        display="flex"
+                                        flexDirection="column"
+                                        gap={5}
+                                      >
+                                        <Text>Generating Image...</Text>
+                                        <Skeleton
+                                          width="100%"
+                                          height={600}
+                                          borderRadius="10px"
+                                        />
+                                      </Box>
+                                    ) : msg?.image ? (
+                                      <Box
+                                        borderRadius={"md"}
+                                        mb={8}
+                                        position="relative"
+                                        className="group"
+                                      >
+                                        <Image
+                                          src={msg?.image?.secure_url}
+                                          alt="intellihub-ai"
+                                          width={msg?.image?.width}
+                                          height={msg?.image?.height}
+                                          style={{
+                                            borderRadius: "10px",
+                                          }}
+                                          quality={100}
+                                        />
+                                        <IconButton
+                                          aria-label="Download image"
+                                          icon={<MdDownload color={"black"} />}
+                                          position="absolute"
+                                          top={{
+                                            base: "10%",
+                                            md: "5%",
+                                          }}
+                                          right={0}
+                                          transform="translate(-50%, -50%)"
+                                          opacity={{
+                                            base: 100,
+                                            md: 0,
+                                          }}
+                                          rounded="full"
+                                          background="white"
+                                          transition="opacity 0.2s"
+                                          _groupHover={{ opacity: 1 }}
+                                          _hover={{
+                                            background: "white",
+                                          }}
+                                          onClick={() => {
+                                            if (msg?.image?.secure_url) {
+                                              saveAs(
+                                                msg.image.secure_url,
+                                                `${msg?.image?.public_id}.jpg`
+                                              );
+                                            }
+                                          }}
+                                        />
+                                      </Box>
+                                    ) : msg.isLoading ? (
                                       <Text>Intellihub is thinking...</Text>
                                     ) : (
                                       <Markdown
@@ -383,7 +474,8 @@ const Home = () => {
                               </Flex>
                               {msg.role === ROLE_ASSISTANT &&
                                 !msg.isLoading &&
-                                isStreamComplete && (
+                                isStreamComplete &&
+                                !msg.image && (
                                   <Box>
                                     {isCopied && selectedIndex === index ? (
                                       <IconButton
@@ -449,13 +541,12 @@ const Home = () => {
                   letterSpacing={0.3}
                   px={3}
                 >
-                  Current Model{" "}
                   <Text
                     as="span"
                     fontWeight="extrabold"
                     textTransform="uppercase"
                   >
-                    {selectedAIModel}
+                    {isImageGeneration ? FLUX_1_SCHNELL : selectedAIModel}
                   </Text>
                 </Badge>
                 <Flex
@@ -492,7 +583,6 @@ const Home = () => {
                     </PopoverTrigger>
                     <PopoverContent>
                       <PopoverArrow />
-                      {/* <PopoverCloseButton /> */}
                       <PopoverBody>
                         <Badge
                           colorScheme="transparent"
@@ -506,7 +596,13 @@ const Home = () => {
                       </PopoverBody>
                     </PopoverContent>
                   </Popover>
-                  <Switch size="sm" />
+                  <Switch
+                    size="sm"
+                    isChecked={isImageGeneration}
+                    onChange={() => {
+                      setIsImageGeneration(!isImageGeneration);
+                    }}
+                  />
                 </Flex>
               </Flex>
             )}
@@ -521,6 +617,7 @@ const Home = () => {
                 await handleSendMessage();
               }}
               btnDisabled={!inputValue}
+              labelMargin="0"
             />
           </Box>
         </Flex>
