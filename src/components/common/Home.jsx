@@ -38,6 +38,7 @@ import {
   PopoverBody,
   Skeleton,
   Spinner,
+  useToast,
 } from "@chakra-ui/react";
 
 import { generateStreamedTextData } from "@/server/server";
@@ -165,7 +166,7 @@ const Home = () => {
   const chatEndRef = useRef(null);
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const toast = useToast();
 
   // Chakra UI Hooks
   const {
@@ -244,12 +245,27 @@ const Home = () => {
     setMessages((prevMessages) => [...prevMessages, newAssistantMessage]);
 
     setValue("promptInput", "");
-    const { output } = await generateStreamedTextData({
+    const { output, isError } = await generateStreamedTextData({
       messages: [...messages, newUserMessage],
       model: selectedAIModel,
       prompt: inputValue,
       isImageGeneration,
     });
+
+    if (isError) {
+      toast({
+        title: isImageGeneration
+          ? "Error while generating image"
+          : "Error while generating text",
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setIsImageGeneration(false);
+      setIsStreamComplete(false);
+      return;
+    }
 
     if (isImageGeneration) {
       setMessages((prevMessages) => {
@@ -266,6 +282,7 @@ const Home = () => {
       setIsImageGeneration(false);
     } else {
       let fullContent = "";
+
       for await (const delta of readStreamableValue(output)) {
         fullContent += delta;
         // Update the last message (assistant's message) with the new content
@@ -296,7 +313,7 @@ const Home = () => {
 
   useEffect(() => {
     if (isStreamComplete) {
-      storeDataInFirebase(messages);
+      // storeDataInFirebase(messages);
     }
   }, [isStreamComplete, messages, storeDataInFirebase]);
 

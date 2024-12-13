@@ -63,7 +63,7 @@ export const generateStreamedTextData = async ({
         imageName: `intelliHub-ai-generated-${1 + Math.random()}`,
       });
 
-      return { output: uploadedImage };
+      return { output: uploadedImage, isError: false, error: null };
     } else {
       let stream = createStreamableValue("");
       (async () => {
@@ -79,10 +79,14 @@ export const generateStreamedTextData = async ({
         stream.done();
       })();
 
-      return { output: stream.value };
+      return { output: stream.value, isError: false, error: null };
     }
   } catch (error) {
-    return {};
+    return {
+      output: null,
+      isError: true,
+      error: error.message,
+    };
   }
 };
 
