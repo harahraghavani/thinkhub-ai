@@ -23,6 +23,7 @@ import {
 import {
   arrayUnion,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -32,7 +33,6 @@ import {
 } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { deleteFile } from "@/server/server";
 
 const FirebaseContext = createContext();
@@ -216,28 +216,32 @@ const FirebaseProvider = ({ children }) => {
           ?.filter((item) => item?.image)
           ?.map((data) => data?.image?.public_id);
 
+        let result;
+
         if (imageArray?.length > 0) {
-          await Promise.all(
+          result = await Promise.all(
             imageArray.map(async (image) => {
-              await deleteFile({ sourceFilePath: image });
+              const result = await deleteFile({ sourceFilePath: image });
+              return result;
             })
           );
         }
+        const isRemoveImgSuccess =
+          result.map((item) => item.isSuccess).filter(Boolean)?.length > 0;
 
-        // await deleteDoc(chatDocRef);
-        // await getChatHistoryData(); // Refresh the chat list
-        // toast({
-        //   title: "Chat deleted successfully",
-        //   status: "success",
-        //   duration: 3000,
-        //   isClosable: true,
-        //   position: "top-right",
-        // });
+        await deleteDoc(chatDocRef);
+        await getChatHistoryData();
+        toast({
+          title: "Chat deleted successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right",
+        });
       }
 
       setIsDeleting(false);
     } catch (error) {
-      console.log("error: ", error);
       toast({
         title: "Error occurred while deleting chat",
         status: "error",

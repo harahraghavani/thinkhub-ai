@@ -37,6 +37,7 @@ import {
   PopoverCloseButton,
   PopoverBody,
   Skeleton,
+  Spinner,
 } from "@chakra-ui/react";
 
 import { generateStreamedTextData } from "@/server/server";
@@ -226,7 +227,11 @@ const Home = () => {
 
     startChatBtnClick.current = true;
     setIsStreamComplete(false);
-    const newUserMessage = { role: ROLE_USER, content: inputValue?.trim() };
+    const newUserMessage = {
+      role: ROLE_USER,
+      content: inputValue?.trim(),
+      timestamp: Date.now(),
+    };
     setMessages((prevMessages) => [...prevMessages, newUserMessage]);
 
     // Start with an empty assistant message
@@ -401,11 +406,36 @@ const Home = () => {
                                         gap={5}
                                       >
                                         <Text>Generating Image...</Text>
-                                        <Skeleton
-                                          width="100%"
-                                          height={600}
-                                          borderRadius="10px"
-                                        />
+                                        <Box position="relative" width="100%">
+                                          <Skeleton
+                                            width="100%"
+                                            height={{
+                                              base: 300,
+                                              md: 600,
+                                            }}
+                                            borderRadius="10px"
+                                            fadeDuration={0.3}
+                                            speed={0.7}
+                                            position="relative"
+                                          />
+                                          <Box
+                                            position="absolute"
+                                            top="50%"
+                                            left="50%"
+                                            style={{
+                                              transform:
+                                                "translate(-50%, -50%)",
+                                            }}
+                                          >
+                                            <Spinner
+                                              size={{
+                                                base: "lg",
+                                                md: "xl",
+                                              }}
+                                              thickness="2px"
+                                            />
+                                          </Box>
+                                        </Box>
                                       </Box>
                                     ) : msg?.image ? (
                                       <Box
@@ -432,7 +462,7 @@ const Home = () => {
                                             base: "10%",
                                             md: "5%",
                                           }}
-                                          right={0}
+                                          right={"-7px"}
                                           transform="translate(-50%, -50%)"
                                           opacity={{
                                             base: 100,
@@ -612,7 +642,11 @@ const Home = () => {
               register={register}
               errors={errors}
               rules={{}}
-              placeHolderText="Message IntelliHub"
+              placeHolderText={
+                isImageGeneration
+                  ? "Describe what you want to generate"
+                  : "Message IntelliHub"
+              }
               sendOnClick={async () => {
                 await handleSendMessage();
               }}

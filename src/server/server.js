@@ -86,12 +86,10 @@ export const generateStreamedTextData = async ({
   }
 };
 
-export const deleteFile = async function ({ sourceFilePath }) {
+export const deleteFile = async ({ sourceFilePath }) => {
   try {
     const result = await cloudinary.uploader.destroy(sourceFilePath);
-    console.log("result: ", result);
-
-    return {};
+    return { isSuccess: true };
   } catch (error) {
     return { isSuccess: false };
   }
