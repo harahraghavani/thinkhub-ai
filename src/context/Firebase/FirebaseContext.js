@@ -16,6 +16,7 @@ import {
   getCookie,
 } from "../../utility/utils/utils";
 import {
+  COLLECTION_NAMES,
   INTELLIHUB_SELECTED_MODEL,
   USER_ACCESS_TOKEN,
   USER_DATA,
@@ -28,10 +29,11 @@ import {
   getDoc,
   getDocs,
   getFirestore,
+  query,
   setDoc,
   updateDoc,
+  where,
 } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
 import { useRouter } from "next/navigation";
 import { deleteFile } from "@/server/server";
 
@@ -45,7 +47,6 @@ const FirebaseProvider = ({ children }) => {
   const auth = getAuth(MY_APP);
   const googleProvider = new GoogleAuthProvider();
   const DATABASE = getFirestore(MY_APP);
-  const STORAGE = getStorage(MY_APP);
 
   // hooks
   const toast = useToast();
@@ -69,17 +70,35 @@ const FirebaseProvider = ({ children }) => {
     setIsLoading(true);
     await signInWithPopup(auth, googleProvider)
       .then((result) => {
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            // CREATE A USER REFERENCE TO STORE THE DATA IN THE FIRESTORE
+            const USER_REF = doc(DATABASE, COLLECTION_NAMES.USERS, user?.uid);
+
+            // CHECK IF THE USER EXIST OR NOT
+            const userSnapshot = await getDoc(USER_REF);
+            if (!userSnapshot.exists()) {
+              await setDoc(USER_REF, {
+                uid: user.uid ?? "",
+                name: user.displayName ?? "",
+                email: user.email ?? "",
+                photoURL: user.photoURL ?? "",
+                createAt: new Date().valueOf(),
+              });
+            }
+          }
+        });
         createCookie(USER_ACCESS_TOKEN, result?.user?.accessToken);
         createCookie(USER_DATA, result?.user);
+        router.push("/");
         toast({
-          title: "Logged in successfully",
+          title: `Welcome, ${result?.user?.displayName}`,
           status: "success",
           duration: 5000,
           isClosable: true,
           position: "top-right",
         });
         setIsLoading(false);
-        router.push("/");
       })
       .catch((error) => {
         setIsLoading(false);
@@ -140,7 +159,7 @@ const FirebaseProvider = ({ children }) => {
   const createMessageReference = async (messages, chatId) => {
     try {
       // Reference to the specific chat document for the current user
-      const chatDocRef = doc(DATABASE, "users", user.uid, "chats", chatId);
+      const chatDocRef = doc(DATABASE, COLLECTION_NAMES.CHATS, chatId);
 
       // Check if the document exists
       const chatDocSnap = await getDoc(chatDocRef);
@@ -151,22 +170,28 @@ const FirebaseProvider = ({ children }) => {
         });
       } else {
         await setDoc(chatDocRef, {
+          chatId,
+          userId: user?.uid,
           messages: arrayUnion(...messages),
+          createdAt: new Date().valueOf(),
         });
       }
     } catch (error) {}
   };
 
-  const getChatByChatID = async (id) => {
+  const getChatByChatID = async (chatId) => {
     setGetMessageLoader(true);
-    if (user && id) {
-      const chatDocRef = doc(DATABASE, "users", user.uid, "chats", id);
+
+    try {
+      const chatDocRef = doc(DATABASE, COLLECTION_NAMES.CHATS, chatId);
       const chatDocSnap = await getDoc(chatDocRef);
       if (chatDocSnap.exists()) {
-        const messagesData = chatDocSnap.data().messages;
-        setMessages(messagesData);
+        const messagesData = chatDocSnap.data();
+        setMessages(messagesData?.messages);
         setGetMessageLoader(false);
       }
+    } catch (error) {
+      setGetMessageLoader(false);
     }
 
     setGetMessageLoader(false);
@@ -180,25 +205,22 @@ const FirebaseProvider = ({ children }) => {
   const getChatHistoryData = async () => {
     setIsChatLoading(true);
     try {
-      const chatsRef = collection(DATABASE, "users", user.uid, "chats");
-      const chatSnapshot = await getDocs(chatsRef);
+      // Reference to the COLLECTION_NAMES.CHATS collection
+      const chatRef = collection(DATABASE, COLLECTION_NAMES.CHATS);
 
-      const chatsPromises = chatSnapshot.docs.map(async (chatDoc) => {
-        const chatId = chatDoc.id;
-        const messagesRef = doc(DATABASE, "users", user.uid, "chats", chatId);
-        const messagesSnap = await getDoc(messagesRef);
-        const messagesData = messagesSnap.data();
+      // Query to filter chats by the logged-in user's UID
+      const chatQueryRef = query(chatRef, where("userId", "==", user.uid));
 
+      // Execute the query and retrieve the documents
+      const querySnapshot = await getDocs(chatQueryRef);
+
+      const userChats = querySnapshot.docs.map((doc) => {
         return {
-          id: chatId,
-          messages: messagesData?.messages || [],
+          ...doc.data(),
         };
       });
 
-      const chatsData = await Promise.all(chatsPromises);
-
-      // update the states
-      setChatHistory(chatsData);
+      setChatHistory(userChats);
       setIsChatLoading(false);
     } catch (error) {
       setIsChatLoading(false);
@@ -208,7 +230,7 @@ const FirebaseProvider = ({ children }) => {
   const deleteChatHistoryById = async (chatId) => {
     setIsDeleting(true);
     try {
-      const chatDocRef = doc(DATABASE, "users", user.uid, "chats", chatId);
+      const chatDocRef = doc(DATABASE, COLLECTION_NAMES.CHATS, chatId);
       const chatDocSnap = await getDoc(chatDocRef);
       if (chatDocSnap.exists()) {
         const messagesData = chatDocSnap.data().messages;
@@ -227,7 +249,7 @@ const FirebaseProvider = ({ children }) => {
           );
         }
         const isRemoveImgSuccess =
-          result.map((item) => item.isSuccess).filter(Boolean)?.length > 0;
+          result?.map((item) => item.isSuccess).filter(Boolean)?.length > 0;
 
         await deleteDoc(chatDocRef);
         await getChatHistoryData();

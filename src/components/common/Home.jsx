@@ -39,6 +39,7 @@ import {
   Skeleton,
   Spinner,
   useToast,
+  Button,
 } from "@chakra-ui/react";
 
 import { generateStreamedTextData } from "@/server/server";
@@ -181,6 +182,7 @@ const Home = () => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [isStreamComplete, setIsStreamComplete] = useState(false);
   const [isImageGeneration, setIsImageGeneration] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   // Custome hooks
   const { accessToken, firebaseMethods, states, startChatBtnClick } =
@@ -220,7 +222,7 @@ const Home = () => {
     toggleAuthModal();
   };
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (prompt) => {
     if (!accessToken) {
       handleOpenAuthModal();
       return;
@@ -233,7 +235,10 @@ const Home = () => {
       content: inputValue?.trim(),
       timestamp: Date.now(),
     };
-    setMessages((prevMessages) => [...prevMessages, newUserMessage]);
+
+    if (!isError && !prompt) {
+      setMessages((prevMessages) => [...prevMessages, newUserMessage]);
+    }
 
     // Start with an empty assistant message
     const newAssistantMessage = {
@@ -245,22 +250,27 @@ const Home = () => {
     setMessages((prevMessages) => [...prevMessages, newAssistantMessage]);
 
     setValue("promptInput", "");
-    const { output, isError } = await generateStreamedTextData({
+    const { output, isError, error } = await generateStreamedTextData({
       messages: [...messages, newUserMessage],
       model: selectedAIModel,
-      prompt: inputValue,
+      prompt: prompt ?? inputValue,
       isImageGeneration,
     });
 
     if (isError) {
+      setIsError(true);
+      setMessages((prevMessages) => {
+        // Remove the last message (assistant message)
+        const updatedMessages = [...prevMessages];
+        updatedMessages.pop();
+        return updatedMessages;
+      });
       toast({
-        title: isImageGeneration
-          ? "Error while generating image"
-          : "Error while generating text",
+        title: error,
         status: "error",
-        duration: 4000,
-        isClosable: true,
+        duration: 3000,
         position: "bottom",
+        isClosable: true,
       });
       setIsImageGeneration(false);
       setIsStreamComplete(false);
@@ -299,6 +309,7 @@ const Home = () => {
         });
       }
     }
+    setIsError(false);
     setIsImageGeneration(false);
     setIsStreamComplete(true);
   };
@@ -313,7 +324,7 @@ const Home = () => {
 
   useEffect(() => {
     if (isStreamComplete) {
-      // storeDataInFirebase(messages);
+      storeDataInFirebase(messages);
     }
   }, [isStreamComplete, messages, storeDataInFirebase]);
 
@@ -653,23 +664,48 @@ const Home = () => {
                 </Flex>
               </Flex>
             )}
-            <FormInput
-              name="promptInput"
-              id="promptInput"
-              register={register}
-              errors={errors}
-              rules={{}}
-              placeHolderText={
-                isImageGeneration
-                  ? "Describe what you want to generate"
-                  : "Message IntelliHub"
-              }
-              sendOnClick={async () => {
-                await handleSendMessage();
-              }}
-              btnDisabled={!inputValue}
-              labelMargin="0"
-            />
+            {isError ? (
+              <Box
+                display="flex"
+                justifyContent={{
+                  base: "flex-start",
+                  md: "center",
+                }}
+              >
+                <Button
+                  onClick={async () => {
+                    const filteredArray = messages?.filter?.(
+                      (item) => item?.role === ROLE_USER
+                    );
+                    const prompt =
+                      filteredArray[filteredArray.length - 1].content;
+                    setIsError(false);
+
+                    await handleSendMessage(prompt);
+                  }}
+                >
+                  Regenerate
+                </Button>
+              </Box>
+            ) : (
+              <FormInput
+                name="promptInput"
+                id="promptInput"
+                register={register}
+                errors={errors}
+                rules={{}}
+                placeHolderText={
+                  isImageGeneration
+                    ? "Describe what you want to generate"
+                    : "Message IntelliHub"
+                }
+                sendOnClick={async () => {
+                  await handleSendMessage();
+                }}
+                btnDisabled={!inputValue}
+                labelMargin="0"
+              />
+            )}
           </Box>
         </Flex>
       </Container>

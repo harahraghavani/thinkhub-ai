@@ -38,7 +38,7 @@ export const generateStreamedTextData = async ({
         },
       });
 
-      const imageBuffer = await response.arrayBuffer();
+      const imageBuffer = await response?.arrayBuffer();
 
       // Upload the image buffer to Cloudinary
       const uploadToCloudinary = async ({ imageName }) => {
@@ -63,7 +63,7 @@ export const generateStreamedTextData = async ({
         imageName: `intelliHub-ai-generated-${1 + Math.random()}`,
       });
 
-      return { output: uploadedImage, isError: false, error: null };
+      return { output: uploadedImage };
     } else {
       let stream = createStreamableValue("");
       (async () => {
@@ -79,13 +79,14 @@ export const generateStreamedTextData = async ({
         stream.done();
       })();
 
-      return { output: stream.value, isError: false, error: null };
+      return { output: stream.value };
     }
   } catch (error) {
+    console.log("error: ", error);
     return {
       output: null,
       isError: true,
-      error: error.message,
+      error: error.message || "An unexpected error occurred.",
     };
   }
 };

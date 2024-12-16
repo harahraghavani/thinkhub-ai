@@ -141,3 +141,8 @@ export const PUBLIC_ROUTES = ["/login", "/"];
 export const CHATS_PER_PAGE = 5;
 
 export const GREETINGS_KEYWORDS = ["hello", "hi", "hey", "greetings"];
+
+export const COLLECTION_NAMES = {
+  CHATS: "chats",
+  USERS: "users",
+};

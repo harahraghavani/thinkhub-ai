@@ -149,7 +149,7 @@ export default function ChatHistoryComponent() {
                 <Grid gap={4}>
                   {chatHistory?.length > 0 ? (
                     chatHistory.map((chat) => {
-                      const chatId = chat?.id;
+                      const chatId = chat?.chatId;
                       const content = renderChatContent(chat.messages);
 
                       return (
