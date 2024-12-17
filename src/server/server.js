@@ -82,7 +82,6 @@ export const generateStreamedTextData = async ({
       return { output: stream.value };
     }
   } catch (error) {
-    console.log("error: ", error);
     return {
       output: null,
       isError: true,

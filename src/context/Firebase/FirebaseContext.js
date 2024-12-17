@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useEffect, useRef, useState } from "react";
+import { createContext, use, useEffect, useRef, useState } from "react";
 import MY_APP from "../../config/FirebaseConfig";
 import {
   GoogleAuthProvider,
@@ -51,6 +51,7 @@ const FirebaseProvider = ({ children }) => {
   // hooks
   const toast = useToast();
   const startChatBtnClick = useRef(false);
+  const isChatGenerating = useRef(false);
 
   // states
   const [isLoading, setIsLoading] = useState(false);
@@ -181,6 +182,7 @@ const FirebaseProvider = ({ children }) => {
 
   const getChatByChatID = async (chatId) => {
     setGetMessageLoader(true);
+    isChatGenerating.current = true;
 
     try {
       const chatDocRef = doc(DATABASE, COLLECTION_NAMES.CHATS, chatId);
@@ -190,11 +192,29 @@ const FirebaseProvider = ({ children }) => {
         setMessages(messagesData?.messages);
         setGetMessageLoader(false);
       }
+      isChatGenerating.current = false;
     } catch (error) {
       setGetMessageLoader(false);
+      isChatGenerating.current = false;
     }
 
     setGetMessageLoader(false);
+    isChatGenerating.current = false;
+  };
+
+  const isCurrentUserChat = async (chatId) => {
+    try {
+      const chatDocRef = doc(DATABASE, COLLECTION_NAMES.CHATS, chatId);
+      const chatDocSnap = await getDoc(chatDocRef);
+      if (chatDocSnap.exists()) {
+        const userId = await chatDocSnap?.data()?.userId;
+        const isCurrentUser = userId === user?.uid;
+
+        return isCurrentUser;
+      }
+    } catch (error) {
+      return false;
+    }
   };
 
   const createNewChat = async () => {
@@ -289,6 +309,7 @@ const FirebaseProvider = ({ children }) => {
       createNewChat,
       getChatHistoryData,
       deleteChatHistoryById,
+      isCurrentUserChat,
     },
     states: {
       isLoading,
@@ -306,6 +327,7 @@ const FirebaseProvider = ({ children }) => {
     accessToken,
     userData,
     startChatBtnClick,
+    isChatGenerating,
   };
 
   return (

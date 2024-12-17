@@ -185,8 +185,13 @@ const Home = () => {
   const [isError, setIsError] = useState(false);
 
   // Custome hooks
-  const { accessToken, firebaseMethods, states, startChatBtnClick } =
-    useFirebase();
+  const {
+    accessToken,
+    firebaseMethods,
+    states,
+    startChatBtnClick,
+    isChatGenerating,
+  } = useFirebase();
 
   const { messages, user, getMessageLoader, setMessages } = states;
 
@@ -229,6 +234,7 @@ const Home = () => {
     }
 
     startChatBtnClick.current = true;
+    isChatGenerating.current = true;
     setIsStreamComplete(false);
     const newUserMessage = {
       role: ROLE_USER,
@@ -274,6 +280,7 @@ const Home = () => {
       });
       setIsImageGeneration(false);
       setIsStreamComplete(false);
+      isChatGenerating.current = false;
       return;
     }
 
@@ -312,6 +319,7 @@ const Home = () => {
     setIsError(false);
     setIsImageGeneration(false);
     setIsStreamComplete(true);
+    isChatGenerating.current = false;
   };
 
   const storeDataInFirebase = async (messagesToStore) => {
