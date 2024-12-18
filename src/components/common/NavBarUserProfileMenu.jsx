@@ -11,8 +11,12 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
 
 const NavBarUserProfileMenu = () => {
+  const { id } = useParams();
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
   const { userData, firebaseMethods } = useFirebase();
   const { logoutUser } = firebaseMethods;
 
@@ -46,7 +50,7 @@ const NavBarUserProfileMenu = () => {
       </Menu>
     </Box>
   ) : (
-    <Link href={"/login"}>
+    <Link href={isHomePage ? `/login` : `/login?chatId=${id}`}>
       <Button variant="outline" colorScheme="green">
         Login
       </Button>

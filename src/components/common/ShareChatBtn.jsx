@@ -6,7 +6,7 @@ import { FaShare } from "react-icons/fa";
 import CommonModal from "./CommonModal";
 import { IoIosLink } from "react-icons/io";
 
-const ShareChatBtn = () => {
+const ShareChatBtn = ({ isAbsolute = true, isRightIcon = true }) => {
   const params = useParams();
   const { accessToken, isChatGenerating } = useFirebase();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -32,9 +32,9 @@ const ShareChatBtn = () => {
   return (
     <>
       {accessToken && (
-        <Box position="absolute" top={100} right={5}>
+        <Box position={isAbsolute ? "absolute" : "block"} top={100} right={5}>
           <Button
-            rightIcon={<FaShare />}
+            rightIcon={isRightIcon ? <FaShare /> : null}
             disabled={!(params?.id || isChatGenerating?.current)}
             onClick={() => {
               onOpen();

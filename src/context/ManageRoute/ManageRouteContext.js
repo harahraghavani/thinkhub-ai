@@ -11,6 +11,8 @@ const ManageRouteProvider = ({ children }) => {
   // Router
   const router = useRouter();
   const pathname = usePathname();
+  const sharedChatPathname = pathname?.split("/")[1];
+  const isSharedChat = sharedChatPathname === "share";
 
   // COOKIE DATA
   const accessToken = getCookie(USER_ACCESS_TOKEN);
@@ -22,10 +24,10 @@ const ManageRouteProvider = ({ children }) => {
   }, [accessToken, pathname, router]);
 
   useEffect(() => {
-    if (!accessToken && !PUBLIC_ROUTES.includes(pathname)) {
+    if (!accessToken && !PUBLIC_ROUTES.includes(pathname) && !isSharedChat) {
       router.push("/");
     }
-  }, [accessToken, pathname, router]);
+  }, [accessToken, pathname, router, isSharedChat]);
 
   const values = {};
 

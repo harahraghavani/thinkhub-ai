@@ -1,5 +1,5 @@
 "use client";
-import { createContext, use, useEffect, useRef, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import MY_APP from "../../config/FirebaseConfig";
 import {
   GoogleAuthProvider,
@@ -9,6 +9,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { useToast } from "@chakra-ui/react";
+import { v4 as uuidv4 } from "uuid";
 
 import {
   clearCookie,
@@ -34,7 +35,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { deleteFile } from "@/server/server";
 
 const FirebaseContext = createContext();
@@ -42,6 +43,8 @@ const FirebaseContext = createContext();
 const FirebaseProvider = ({ children }) => {
   // REACT ROUTER
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const chatId = searchParams.get("chatId");
 
   // FIREBASE
   const auth = getAuth(MY_APP);
@@ -87,11 +90,23 @@ const FirebaseProvider = ({ children }) => {
                 createAt: new Date().valueOf(),
               });
             }
+            if (chatId) {
+              const isCurrentUser = await isCurrentUserChat(chatId);
+              if (isCurrentUser) {
+                router.replace(`/chat/${chatId}`);
+              } else {
+                const newId = uuidv4();
+                await getChatById(chatId, newId).then(() => {
+                  router.push(`/chat/${newId}`);
+                });
+              }
+            } else {
+              router.push("/");
+            }
           }
         });
         createCookie(USER_ACCESS_TOKEN, result?.user?.accessToken);
         createCookie(USER_DATA, result?.user);
-        router.push("/");
         toast({
           title: `Welcome, ${result?.user?.displayName}`,
           status: "success",
@@ -129,12 +144,13 @@ const FirebaseProvider = ({ children }) => {
   const logoutUser = async () => {
     await signOut(auth)
       .then(() => {
+        router.push("/login");
         setUser(null);
         clearCookie(USER_ACCESS_TOKEN);
         clearCookie(USER_DATA);
         clearCookie(INTELLIHUB_SELECTED_MODEL);
         setMessages([]);
-        router.push("/login");
+
         toast({
           title: "Logged out successfully",
           status: "success",
@@ -164,6 +180,7 @@ const FirebaseProvider = ({ children }) => {
 
       // Check if the document exists
       const chatDocSnap = await getDoc(chatDocRef);
+      const userId = user ? user?.uid : auth.currentUser?.uid;
 
       if (chatDocSnap.exists()) {
         await updateDoc(chatDocRef, {
@@ -172,7 +189,7 @@ const FirebaseProvider = ({ children }) => {
       } else {
         await setDoc(chatDocRef, {
           chatId,
-          userId: user?.uid,
+          userId: userId,
           messages: arrayUnion(...messages),
           createdAt: new Date().valueOf(),
         });
@@ -189,6 +206,7 @@ const FirebaseProvider = ({ children }) => {
       const chatDocSnap = await getDoc(chatDocRef);
       if (chatDocSnap.exists()) {
         const messagesData = chatDocSnap.data();
+
         setMessages(messagesData?.messages);
         setGetMessageLoader(false);
       }
@@ -202,13 +220,24 @@ const FirebaseProvider = ({ children }) => {
     isChatGenerating.current = false;
   };
 
+  const getChatById = async (chatId, newChatId) => {
+    try {
+      const chatDocRef = doc(DATABASE, COLLECTION_NAMES.CHATS, chatId);
+      const chatDocSnap = await getDoc(chatDocRef);
+      if (chatDocSnap.exists()) {
+        const messagesData = chatDocSnap.data()?.messages;
+        await createMessageReference(messagesData, newChatId);
+      }
+    } catch (error) {}
+  };
+
   const isCurrentUserChat = async (chatId) => {
     try {
       const chatDocRef = doc(DATABASE, COLLECTION_NAMES.CHATS, chatId);
       const chatDocSnap = await getDoc(chatDocRef);
       if (chatDocSnap.exists()) {
         const userId = await chatDocSnap?.data()?.userId;
-        const isCurrentUser = userId === user?.uid;
+        const isCurrentUser = userId === userData?.uid;
 
         return isCurrentUser;
       }
@@ -310,6 +339,7 @@ const FirebaseProvider = ({ children }) => {
       getChatHistoryData,
       deleteChatHistoryById,
       isCurrentUserChat,
+      getChatById,
     },
     states: {
       isLoading,

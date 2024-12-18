@@ -18,6 +18,7 @@ import CommonDrawer from "./CommonDrawer";
 import NavBarContent from "./NavBarContent";
 import { IoMdAdd } from "react-icons/io";
 import { useFirebase } from "@/hooks/firebase/useFirebase";
+import ShareChatBtn from "./ShareChatBtn";
 
 const NabBar = () => {
   const router = useRouter();
@@ -85,7 +86,6 @@ const NabBar = () => {
                 base: "block",
                 md: "none",
               }}
-              leftIcon={<IoMdAdd />}
               onClick={() => {
                 createNewChat();
               }}
@@ -94,6 +94,14 @@ const NabBar = () => {
               New Chat
             </Button>
           )}
+          <Box
+            display={{
+              base: "block",
+              lg: "none",
+            }}
+          >
+            <ShareChatBtn isAbsolute={false} isRightIcon={false} />
+          </Box>
           {/* USER PROFILE MENU & LOGIN BUTTON */}
           <NavBarUserProfileMenu />
         </Flex>
