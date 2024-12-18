@@ -148,14 +148,18 @@ const Home = () => {
     setMessages((prevMessages) => [...prevMessages, newAssistantMessage]);
 
     setValue("promptInput", "");
-    const { output, isError, error } = await generateStreamedTextData({
+    const {
+      output,
+      isError: responseError,
+      error,
+    } = await generateStreamedTextData({
       messages: [...messages, newUserMessage],
       model: selectedAIModel,
       prompt: prompt ?? inputValue,
       isImageGeneration,
     });
 
-    if (isError) {
+    if (responseError) {
       setIsError(true);
       setMessages((prevMessages) => {
         // Remove the last message (assistant message)
