@@ -14,5 +14,6 @@ IntelliHub-AI is an advanced AI chat application that leverages cutting-edge tec
 
 - **User Authentication**: Seamless sign-up and login functionality using Google authentication
 - **Text-to-Text Interaction**: Engage in natural language conversations with the AI powered by Google Gemini
+- **Text-to-Image Generation**: Engage with cutting-edge AI to transform your textual prompts into stunning images
 - **Response Saving**: Automatically save and retrieve AI-generated responses for future reference
 - **Responsive Design**: Fully responsive user interface for optimal experience across devices
