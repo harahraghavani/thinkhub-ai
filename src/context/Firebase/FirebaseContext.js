@@ -277,7 +277,6 @@ const FirebaseProvider = ({ children }) => {
       setChatHistory(userChats);
       setIsChatLoading(false);
     } catch (error) {
-      console.log("error: ", error);
       setIsChatLoading(false);
     }
   };
