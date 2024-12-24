@@ -29,13 +29,24 @@ const ShareChatBtn = ({ isAbsolute = true, isRightIcon = true }) => {
     onClose();
   };
 
+  const isBtnDisabled = () => {
+    if (params?.id) {
+      return false;
+    }
+    if (isChatGenerating?.current) {
+      return true;
+    }
+
+    return true;
+  };
+
   return (
     <>
       {accessToken && (
         <Box position={isAbsolute ? "absolute" : "block"} top={100} right={5}>
           <Button
             rightIcon={isRightIcon ? <FaShare /> : null}
-            disabled={!(params?.id || isChatGenerating?.current)}
+            disabled={isBtnDisabled()}
             onClick={() => {
               onOpen();
             }}

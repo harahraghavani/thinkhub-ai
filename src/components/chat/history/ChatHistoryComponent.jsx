@@ -38,7 +38,6 @@ export default function ChatHistoryComponent() {
     const userMessage = messages[0];
     let assistantMessage = messages[1];
 
-    // Check if the first message is a greeting
     const isGreeting = GREETINGS_KEYWORDS.some((greeting) =>
       userMessage.content.toLowerCase().startsWith(greeting)
     );
@@ -51,20 +50,13 @@ export default function ChatHistoryComponent() {
 
     return (
       <VStack align="stretch" spacing={2}>
-        <Box>
-          <Text fontWeight="bold">
-            {truncateText(
-              formateString(userMessage.content),
-              isTablet ? 40 : 20
-            )}
-          </Text>
-        </Box>
+        <Text fontWeight="bold">
+          {truncateText(formateString(userMessage.content), isTablet ? 40 : 20)}
+        </Text>
         {assistantMessage && (
-          <Box>
-            <Text isTruncated>
-              {truncateText(formateString(assistantMessage.content))}
-            </Text>
-          </Box>
+          <Text isTruncated>
+            {truncateText(formateString(assistantMessage.content))}
+          </Text>
         )}
       </VStack>
     );
@@ -137,13 +129,13 @@ export default function ChatHistoryComponent() {
             }}
           >
             {isChatLoading ? (
-              <Text>
+              <Box>
                 <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
                 <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
                 <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
                 <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
                 <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
-              </Text>
+              </Box>
             ) : (
               <>
                 <Grid gap={4}>
@@ -155,7 +147,7 @@ export default function ChatHistoryComponent() {
                       return (
                         content && (
                           <Card
-                            key={chat.id}
+                            key={chatId}
                             boxShadow={"inner"}
                             border={`1px solid ${
                               colorMode === "dark"

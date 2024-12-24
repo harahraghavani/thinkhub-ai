@@ -247,8 +247,18 @@ const Home = () => {
     }
   }, [messages]);
 
+  const isBtnDisable = () => {
+    if (isChatGenerating.current) {
+      return true;
+    }
+    if (!inputValue) {
+      return true;
+    }
+    return false;
+  };
+
   return (
-    <>
+    <Fragment>
       <Container
         maxWidth={{
           base: "90%",
@@ -273,8 +283,8 @@ const Home = () => {
                 "&::-webkit-scrollbar": {
                   display: "none",
                 },
-                "-ms-overflow-style": "none",
-                "scrollbar-width": "none",
+                msOverflowStyle: "none",
+                scrollbarWidth: "none",
               }}
             >
               {params?.id && getMessageLoader ? (
@@ -286,9 +296,8 @@ const Home = () => {
                       messages.length > 0 &&
                       messages?.map((msg, index) => {
                         return (
-                          <Fragment key={msg.text}>
+                          <Fragment key={index}>
                             <Flex
-                              key={index}
                               align={
                                 msg.role === ROLE_USER
                                   ? "flex-end"
@@ -385,6 +394,7 @@ const Home = () => {
                                             borderRadius: "10px",
                                           }}
                                           quality={100}
+                                          priority
                                         />
                                         <IconButton
                                           aria-label="Download image"
@@ -606,7 +616,7 @@ const Home = () => {
                 sendOnClick={async () => {
                   await handleSendMessage();
                 }}
-                btnDisabled={!inputValue}
+                btnDisabled={isBtnDisable()}
                 labelMargin="0"
               />
             )}
@@ -622,7 +632,7 @@ const Home = () => {
           <AuthModalContent />
         </CommonModal>
       )}
-    </>
+    </Fragment>
   );
 };
 

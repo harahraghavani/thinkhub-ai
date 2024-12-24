@@ -1,7 +1,12 @@
 import HomePageComponent from "@/components/home/HomePageComponent";
+import { Fragment } from "react";
 
 const HomePage = () => {
-  return <HomePageComponent />;
+  return (
+    <Fragment>
+      <HomePageComponent />
+    </Fragment>
+  );
 };
 
 export default HomePage;

@@ -30,6 +30,7 @@ import {
   getDoc,
   getDocs,
   getFirestore,
+  orderBy,
   query,
   setDoc,
   updateDoc,
@@ -258,7 +259,11 @@ const FirebaseProvider = ({ children }) => {
       const chatRef = collection(DATABASE, COLLECTION_NAMES.CHATS);
 
       // Query to filter chats by the logged-in user's UID
-      const chatQueryRef = query(chatRef, where("userId", "==", user.uid));
+      const chatQueryRef = query(
+        chatRef,
+        where("userId", "==", user.uid),
+        orderBy("createdAt", "desc")
+      );
 
       // Execute the query and retrieve the documents
       const querySnapshot = await getDocs(chatQueryRef);
@@ -272,6 +277,7 @@ const FirebaseProvider = ({ children }) => {
       setChatHistory(userChats);
       setIsChatLoading(false);
     } catch (error) {
+      console.log("error: ", error);
       setIsChatLoading(false);
     }
   };
