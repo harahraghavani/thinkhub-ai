@@ -32,9 +32,9 @@ export const generateStreamedTextData = async ({
         inputs: prompt?.trim(),
         model: FLUX_1_SCHNELL,
         parameters: {
-          height: 1024,
-          width: 1024,
-          num_inference_steps: 4,
+          height: 1080,
+          width: 1080,
+          num_inference_steps: 7,
         },
       });
 
@@ -66,6 +66,7 @@ export const generateStreamedTextData = async ({
       return { output: uploadedImage };
     } else {
       let stream = createStreamableValue("");
+
       (async () => {
         const { textStream } = await streamText({
           model: generativeModel,
