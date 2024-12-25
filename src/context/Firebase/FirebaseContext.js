@@ -66,6 +66,9 @@ const FirebaseProvider = ({ children }) => {
   const [chatHistory, setChatHistory] = useState([]);
   const [isChatLoading, setIsChatLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isCurrentUserChecking, setIsCurrentUserChecking] = useState(false);
+  const [shareChatChecking, setShareChatChecking] = useState(false);
+  const [getChatLoading, setGetChatLoading] = useState(false);
 
   // COOKIE DATA
   const accessToken = getCookie(USER_ACCESS_TOKEN);
@@ -97,7 +100,7 @@ const FirebaseProvider = ({ children }) => {
                 router.replace(`/chat/${chatId}`);
               } else {
                 const newId = uuidv4();
-                await getChatById(chatId, newId).then(() => {
+                await getChatById(chatId, newId, user?.uid).then(() => {
                   router.push(`/chat/${newId}`);
                 });
               }
@@ -174,7 +177,12 @@ const FirebaseProvider = ({ children }) => {
     clearCookie(USER_DATA);
   };
 
-  const createMessageReference = async (messages, chatId) => {
+  const createMessageReference = async (
+    messages,
+    chatId,
+    sharedId,
+    oldChatId
+  ) => {
     try {
       // Reference to the specific chat document for the current user
       const chatDocRef = doc(DATABASE, COLLECTION_NAMES.CHATS, chatId);
@@ -182,6 +190,13 @@ const FirebaseProvider = ({ children }) => {
       // Check if the document exists
       const chatDocSnap = await getDoc(chatDocRef);
       const userId = user ? user?.uid : auth.currentUser?.uid;
+
+      if (oldChatId) {
+        updateSharedUserId(oldChatId, {
+          userId: sharedId,
+          chatId: chatId,
+        });
+      }
 
       if (chatDocSnap.exists()) {
         await updateDoc(chatDocRef, {
@@ -193,7 +208,23 @@ const FirebaseProvider = ({ children }) => {
           userId: userId,
           messages: arrayUnion(...messages),
           createdAt: new Date().valueOf(),
+          sharedWith: [],
         });
+      }
+    } catch (error) {}
+  };
+
+  const updateSharedUserId = async (chatId, sharedChat) => {
+    try {
+      if (chatId && sharedChat) {
+        const chatDocRef = doc(DATABASE, COLLECTION_NAMES.CHATS, chatId);
+        const chatDocSnap = await getDoc(chatDocRef);
+
+        if (chatDocSnap.exists()) {
+          await updateDoc(chatDocRef, {
+            sharedWith: arrayUnion(sharedChat),
+          });
+        }
       }
     } catch (error) {}
   };
@@ -221,28 +252,87 @@ const FirebaseProvider = ({ children }) => {
     isChatGenerating.current = false;
   };
 
-  const getChatById = async (chatId, newChatId) => {
+  const getChatById = async (chatId, newChatId, sharedId) => {
+    setGetChatLoading(true);
     try {
       const chatDocRef = doc(DATABASE, COLLECTION_NAMES.CHATS, chatId);
       const chatDocSnap = await getDoc(chatDocRef);
       if (chatDocSnap.exists()) {
         const messagesData = chatDocSnap.data()?.messages;
-        await createMessageReference(messagesData, newChatId);
+        await createMessageReference(messagesData, newChatId, sharedId, chatId);
       }
-    } catch (error) {}
+      setGetChatLoading(false);
+    } catch (error) {
+      setGetChatLoading(false);
+    }
+  };
+
+  const sharedChatById = async (chatId) => {
+    setShareChatChecking(true);
+    try {
+      const auth = getAuth();
+      const chatDocRef = doc(DATABASE, COLLECTION_NAMES.CHATS, chatId);
+      const chatDocSnap = await getDoc(chatDocRef);
+
+      if (!chatDocSnap.exists()) {
+        return { isCreated: false, chatId: null };
+      }
+
+      const chatData = chatDocSnap.data();
+      const sharedChatArray = chatData?.sharedWith || [];
+
+      if (sharedChatArray.length === 0) {
+        return { isCreated: false, chatId: null };
+      }
+
+      const filteredChat = sharedChatArray.find(
+        (item) => item?.userId === auth?.currentUser?.uid
+      );
+
+      if (!filteredChat) {
+        return { isCreated: false, chatId: null };
+      }
+
+      const newChatId = filteredChat.chatId;
+      const newChatDocRef = doc(DATABASE, COLLECTION_NAMES.CHATS, newChatId);
+      const newChatDocSnap = await getDoc(newChatDocRef);
+
+      if (!newChatDocSnap.exists()) {
+        return { isCreated: false, chatId: null };
+      }
+
+      const newMessageData = newChatDocSnap.data()?.messages || [];
+      const oldMessageData = chatData?.messages || [];
+
+      if (newMessageData.length === oldMessageData.length) {
+        return { isCreated: true, chatId: newChatId };
+      }
+
+      // Update the new chat document with messages from the old chat
+      await updateDoc(newChatDocRef, {
+        messages: arrayUnion(...oldMessageData),
+      });
+      setShareChatChecking(false);
+      return { isCreated: true, chatId: newChatId };
+    } catch (error) {
+      setShareChatChecking(false);
+      return { isCreated: false, chatId: null };
+    }
   };
 
   const isCurrentUserChat = async (chatId) => {
+    setIsCurrentUserChecking(true);
     try {
       const chatDocRef = doc(DATABASE, COLLECTION_NAMES.CHATS, chatId);
       const chatDocSnap = await getDoc(chatDocRef);
       if (chatDocSnap.exists()) {
         const userId = await chatDocSnap?.data()?.userId;
         const isCurrentUser = userId === userData?.uid;
-
+        setIsCurrentUserChecking(false);
         return isCurrentUser;
       }
     } catch (error) {
+      setIsCurrentUserChecking(false);
       return false;
     }
   };
@@ -345,6 +435,7 @@ const FirebaseProvider = ({ children }) => {
       deleteChatHistoryById,
       isCurrentUserChat,
       getChatById,
+      sharedChatById,
     },
     states: {
       isLoading,
@@ -358,6 +449,9 @@ const FirebaseProvider = ({ children }) => {
       chatHistory,
       setIsChatLoading,
       isDeleting,
+      isCurrentUserChecking,
+      shareChatChecking,
+      getChatLoading,
     },
     accessToken,
     userData,

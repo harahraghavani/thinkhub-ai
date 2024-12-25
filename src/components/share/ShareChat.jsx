@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  Fragment,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useFirebase } from "@/hooks/firebase/useFirebase";
 import { useParams, useRouter } from "next/navigation";
 import FormInput from "../form/FromInput";
@@ -22,6 +16,7 @@ import {
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
+import { saveAs } from "file-saver";
 import { HiMiniCheck, HiOutlineSparkles } from "react-icons/hi2";
 import { PiCopySimple } from "react-icons/pi";
 import Markdown from "react-markdown";
@@ -36,6 +31,8 @@ import AuthModalContent from "../common/AuthModalContent";
 import { useMarkdownTheme } from "@/hooks/markdownTheme/useMarkdownTheme";
 import remarkGfm from "remark-gfm";
 import { v4 as uuidv4 } from "uuid";
+import { getAuth } from "firebase/auth";
+import { formateString } from "@/utility/utils/utils";
 
 const ShareChat = () => {
   const params = useParams();
@@ -63,8 +60,16 @@ const ShareChat = () => {
     isChatGenerating,
   } = useFirebase();
 
-  const { messages, user, getMessageLoader } = states;
-  const { getChatByChatID, isCurrentUserChat, getChatById } = firebaseMethods;
+  const {
+    messages,
+    user,
+    getMessageLoader,
+    isCurrentUserChecking,
+    shareChatChecking,
+    getChatLoading,
+  } = states;
+  const { getChatByChatID, isCurrentUserChat, getChatById, sharedChatById } =
+    firebaseMethods;
 
   // States
   const [isCopied, setIsCopied] = useState(false);
@@ -83,14 +88,26 @@ const ShareChat = () => {
 
   const getCurrentUserStatus = useCallback(async () => {
     setIsLoading(true);
+    const auth = getAuth();
     const isCurrentUser = await isCurrentUserChat(params?.id);
     if (isCurrentUser) {
       router.replace(`/chat/${params?.id}`);
     } else {
       if (accessToken) {
-        const newId = uuidv4();
-        await getChatById(params?.id, newId);
-        router.push(`/chat/${newId}`);
+        const { isCreate, chatId } = await sharedChatById(params?.id);
+        if (isCreate) {
+          if (chatId) {
+            router.push(`/chat/${chatId}`);
+          }
+        } else {
+          if (chatId) {
+            router.push(`/chat/${chatId}`);
+          } else {
+            const newId = uuidv4();
+            await getChatById(params?.id, newId, auth?.currentUser?.uid);
+            router.push(`/chat/${newId}`);
+          }
+        }
       } else {
         await getChatByChatID(params?.id);
         setIsStreamComplete(true);
@@ -109,6 +126,21 @@ const ShareChat = () => {
 
   const handleOpenAuthModal = () => {
     toggleAuthModal();
+  };
+
+  const handleCopy = (text, index) => {
+    // Check if the text is a code block
+    const plainText = formateString(text);
+
+    navigator.clipboard.writeText(plainText).then(() => {
+      setSelectedIndex(index);
+      setIsCopied(true);
+      // Revert back to copy icon after 2 seconds
+      setTimeout(() => {
+        setIsCopied(false);
+        setSelectedIndex(null);
+      }, 2000);
+    });
   };
 
   // Auto-scroll to the latest message
@@ -155,7 +187,11 @@ const ShareChat = () => {
                 scrollbarWidth: "none",
               }}
             >
-              {params?.id && isLoading ? (
+              {params?.id &&
+              (isLoading ||
+                isCurrentUserChecking ||
+                shareChatChecking ||
+                getChatLoading) ? (
                 <GradientLoader />
               ) : (
                 <>
