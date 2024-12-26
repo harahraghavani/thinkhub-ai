@@ -14,10 +14,11 @@ const CommonModal = ({
   isOpen,
   onClose,
   baseWidth = "xs",
+  outsideAllowed = false,
 }) => {
   return (
     <Modal
-      closeOnOverlayClick={false}
+      closeOnOverlayClick={outsideAllowed}
       isOpen={isOpen}
       onClose={onClose}
       isCentered

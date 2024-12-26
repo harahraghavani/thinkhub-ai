@@ -69,12 +69,19 @@ const Home = () => {
   } = useDisclosure();
   const { colorMode } = useColorMode();
 
+  const {
+    isOpen: openPreviewModal,
+    onClose: closePreviewModal,
+    onOpen: togglePreviewModal,
+  } = useDisclosure();
+
   // States
   const [isCopied, setIsCopied] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [isStreamComplete, setIsStreamComplete] = useState(false);
   const [isImageGeneration, setIsImageGeneration] = useState(false);
   const [isError, setIsError] = useState(false);
+  const selectedImgSrc = useRef(null);
 
   // Custome hooks
   const {
@@ -392,9 +399,16 @@ const Home = () => {
                                           height={msg?.image?.height}
                                           style={{
                                             borderRadius: "10px",
+                                            cursor: "pointer",
                                           }}
                                           quality={100}
                                           priority
+                                          onClick={async () => {
+                                            selectedImgSrc.current = msg?.image;
+                                            setTimeout(() => {
+                                              togglePreviewModal();
+                                            }, 100);
+                                          }}
                                         />
                                         <IconButton
                                           aria-label="Download image"
@@ -630,6 +644,44 @@ const Home = () => {
           title="Authorization Required"
         >
           <AuthModalContent />
+        </CommonModal>
+      )}
+      {openPreviewModal && (
+        <CommonModal
+          isOpen={openPreviewModal}
+          onClose={() => {
+            closePreviewModal();
+            selectedImgSrc.current = null;
+          }}
+          outsideAllowed
+        >
+          <Box display="flex" flexDirection="column" gap={5} pt={2}>
+            <Image
+              src={selectedImgSrc?.current?.secure_url}
+              alt="intellihub-ai"
+              width={selectedImgSrc?.current?.width}
+              height={selectedImgSrc?.current?.height}
+              style={{
+                borderRadius: "5px",
+              }}
+              quality={100}
+              priority
+            />
+            <Button
+              onClick={() => {
+                if (selectedImgSrc?.current?.secure_url) {
+                  saveAs(
+                    selectedImgSrc?.current?.secure_url,
+                    `${selectedImgSrc?.current?.public_id}.jpg`
+                  );
+                }
+              }}
+              colorScheme="blue"
+              rightIcon={<MdDownload />}
+            >
+              Download
+            </Button>
+          </Box>
         </CommonModal>
       )}
     </Fragment>

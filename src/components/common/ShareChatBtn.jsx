@@ -30,7 +30,7 @@ const ShareChatBtn = ({ isAbsolute = true, isRightIcon = true }) => {
   };
 
   const isBtnDisabled = () => {
-    if (params?.id) {
+    if (params?.id && !isChatGenerating?.current) {
       return false;
     }
     if (isChatGenerating?.current) {
