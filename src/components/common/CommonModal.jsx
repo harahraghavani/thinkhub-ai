@@ -14,7 +14,9 @@ const CommonModal = ({
   isOpen,
   onClose,
   baseWidth = "xs",
+  maxWidth = "md",
   outsideAllowed = false,
+  blurValue = 10,
 }) => {
   return (
     <Modal
@@ -23,11 +25,14 @@ const CommonModal = ({
       onClose={onClose}
       isCentered
     >
-      <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
+      <ModalOverlay
+        bg="blackAlpha.300"
+        backdropFilter={`blur(${blurValue}px)`}
+      />
       <ModalContent
         maxW={{
           base: baseWidth,
-          md: "md",
+          md: maxWidth,
         }}
       >
         <ModalHeader>{title}</ModalHeader>

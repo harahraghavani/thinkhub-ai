@@ -137,6 +137,7 @@ const FirebaseProvider = ({ children }) => {
 
   const isUserExist = () => {
     onAuthStateChanged(auth, (user) => {
+      console.log("user: ", user);
       if (user) {
         setUser(user);
       } else {

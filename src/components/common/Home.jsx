@@ -653,7 +653,9 @@ const Home = () => {
             closePreviewModal();
             selectedImgSrc.current = null;
           }}
+          maxWidth="lg"
           outsideAllowed
+          blurValue={20}
         >
           <Box display="flex" flexDirection="column" gap={5} pt={2}>
             <Image
