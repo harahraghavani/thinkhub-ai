@@ -61,7 +61,7 @@ const AuthenticationPage = () => {
           base: "30px 10px",
           md: "40px",
         }}
-        maxWidth={{ base: "450px", md: "450px" }}
+        maxWidth={{ base: "450px", md: "500px" }}
         width={{
           base: "90%",
           md: "100%",

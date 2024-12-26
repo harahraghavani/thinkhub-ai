@@ -1,11 +1,11 @@
 import { Analytics } from "@vercel/analytics/next";
 import { Providers } from "@/provider/Provider";
-import { Rubik } from "next/font/google";
+import { Lexend } from "next/font/google";
 import "./globals.css";
 
-const montserrat = Rubik({
+const montserrat = Lexend({
   subsets: ["latin"],
-  variable: "--font-rubik",
+  variable: "--font-lexend",
   display: "swap",
 });
 
