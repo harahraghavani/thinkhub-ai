@@ -1,13 +1,11 @@
 "use client";
-
 import { Box, Button, Flex, Text, VStack } from "@chakra-ui/react";
-import Particles, { initParticlesEngine } from "@tsparticles/react";
+import { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import { FaGoogle } from "react-icons/fa6";
 import { useEffect, useState } from "react";
-import { TS_PARTICLES_OPTIONS } from "@/constant/appConstant";
-import GlassmorphismButton from "@/components/common/GlassmorphismButton";
 import { useFirebase } from "@/hooks/firebase/useFirebase";
+import { Velustro } from "uvcanvas";
 
 const AuthenticationPage = () => {
   const [init, setInit] = useState(false);
@@ -42,21 +40,22 @@ const AuthenticationPage = () => {
         height="100%"
         zIndex={0}
       >
-        {init && (
+        {/* {init && (
           <Particles
             id="tsparticles"
             particlesLoaded={() => {}}
             options={TS_PARTICLES_OPTIONS}
           />
-        )}
+        )} */}
+        <Velustro />
       </Box>
 
       {/* Glassmorphism Card */}
       <Box
-        backgroundColor="rgba(255, 255, 255, 0.12)"
-        backdropFilter="blur(7px)"
+        backgroundColor="rgba(255, 255, 255, 0.25)"
+        backdropFilter="blur(15px)"
         border="1px solid rgba(255, 255, 255, 0.1)"
-        borderRadius="24px"
+        borderRadius="22px"
         boxShadow="0 4px 30px rgba(0, 0, 0, 0.1)"
         padding={{
           base: "30px 10px",
@@ -82,7 +81,7 @@ const AuthenticationPage = () => {
           >
             Welcome to IntelliHub AI
           </Text>
-          <Text fontSize="md" color="whiteAlpha.700" textAlign="center">
+          <Text fontSize="md" color="white" textAlign="center">
             Creativity with advanced AI solutions. <br />
             Sign in with Google to begin your journey
           </Text>
@@ -110,6 +109,7 @@ const AuthenticationPage = () => {
             height="50px"
             fontSize="md"
             transition="all 0.3s ease"
+            textShadow="0 2px 10px rgba(0,0,0,0.3)"
           >
             Continue with Google
           </Button>
