@@ -1,6 +1,6 @@
-# IntelliHub-AI
+# ThinkHub AI
 
-IntelliHub-AI is an advanced AI chat application that leverages cutting-edge technologies to provide a seamless and intelligent conversational experience.
+ThinkHub AI is an advanced AI chat application that leverages cutting-edge technologies to provide a seamless and intelligent conversational experience.
 
 ## Tech Stack
 
