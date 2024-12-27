@@ -79,7 +79,7 @@ const AuthenticationPage = () => {
             textAlign="center"
             textShadow="0 2px 10px rgba(0,0,0,0.5)"
           >
-            Welcome to IntelliHub AI
+            Welcome to ThinkHub AI
           </Text>
           <Text fontSize="md" color="white" textAlign="center">
             Creativity with advanced AI solutions. <br />

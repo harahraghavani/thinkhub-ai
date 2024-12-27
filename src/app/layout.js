@@ -10,7 +10,7 @@ const montserrat = Lexend({
 });
 
 export const metadata = {
-  title: "IntelliHub AI",
+  title: "ThinkHub AI",
   description: "Generative AI web app",
 };
 
@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta
           name="keywords"
-          content="AI, Generative AI, IntelliHub AI, AI web app"
+          content="AI, Generative AI, ThinkHub AI, AI web app"
         />
         <meta name="author" content="Harsh Raghavani" />
         <meta property="og:title" content={metadata.title} />

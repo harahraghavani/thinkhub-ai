@@ -72,6 +72,7 @@ const FirebaseProvider = ({ children }) => {
 
   // COOKIE DATA
   const accessToken = getCookie(USER_ACCESS_TOKEN);
+
   const userData = getCookie(USER_DATA);
 
   const signUpWithGoogle = async () => {
@@ -137,7 +138,6 @@ const FirebaseProvider = ({ children }) => {
 
   const isUserExist = () => {
     onAuthStateChanged(auth, (user) => {
-      console.log("user: ", user);
       if (user) {
         setUser(user);
       } else {
@@ -146,7 +146,7 @@ const FirebaseProvider = ({ children }) => {
     });
   };
 
-  const logoutUser = async () => {
+  const logoutUser = async ({ showToast = true }) => {
     await signOut(auth)
       .then(() => {
         router.push("/login");
@@ -155,14 +155,15 @@ const FirebaseProvider = ({ children }) => {
         clearCookie(USER_DATA);
         clearCookie(INTELLIHUB_SELECTED_MODEL);
         setMessages([]);
-
-        toast({
-          title: "Logged out successfully",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-          position: "top-right",
-        });
+        if (showToast) {
+          toast({
+            title: "Logged out successfully",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "top-right",
+          });
+        }
       })
       .catch((error) => {
         toast({
@@ -420,10 +421,23 @@ const FirebaseProvider = ({ children }) => {
     }
   };
 
+  const removeUser = async () => {
+    try {
+      await logoutUser({ showToast: false });
+    } catch (error) {}
+  };
+
   useEffect(() => {
     isUserExist();
     // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    if (user && !accessToken) {
+      removeUser();
+    }
+    // eslint-disable-next-line
+  }, [user, accessToken]);
 
   const values = {
     firebaseMethods: {

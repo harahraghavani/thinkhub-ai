@@ -17,10 +17,11 @@ const NavBarUserProfileMenu = () => {
   const { id } = useParams();
   const pathname = usePathname();
   const isHomePage = pathname === "/";
-  const { userData, firebaseMethods } = useFirebase();
+  const { accessToken, firebaseMethods, states } = useFirebase();
+  const { user } = states;
   const { logoutUser } = firebaseMethods;
 
-  return userData ? (
+  return accessToken ? (
     <Box
       display={{
         base: "none",
@@ -40,12 +41,12 @@ const NavBarUserProfileMenu = () => {
           p={0}
         >
           <Avatar
-            name={userData?.displayName}
-            src={userData?.providerData?.[0]?.photoURL}
+            name={user?.displayName}
+            src={user?.providerData?.[0]?.photoURL}
           />
         </MenuButton>
         <MenuList>
-          <MenuItem onClick={async () => await logoutUser()}>Logout</MenuItem>
+          <MenuItem onClick={async () => await logoutUser({})}>Logout</MenuItem>
         </MenuList>
       </Menu>
     </Box>

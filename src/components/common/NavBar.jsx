@@ -1,5 +1,4 @@
 "use client";
-
 import { usePathname, useRouter } from "next/navigation";
 import {
   Box,
@@ -16,7 +15,6 @@ import NavBarUserProfileMenu from "./NavBarUserProfileMenu";
 import { RxHamburgerMenu } from "react-icons/rx";
 import CommonDrawer from "./CommonDrawer";
 import NavBarContent from "./NavBarContent";
-import { IoMdAdd } from "react-icons/io";
 import { useFirebase } from "@/hooks/firebase/useFirebase";
 import ShareChatBtn from "./ShareChatBtn";
 
@@ -29,7 +27,7 @@ const NabBar = () => {
     onClose: toggleNavbar,
     onOpen: openNavBar,
   } = useDisclosure();
-  const { firebaseMethods, userData } = useFirebase();
+  const { firebaseMethods, accessToken } = useFirebase();
   const { createNewChat } = firebaseMethods;
 
   return (
@@ -52,7 +50,7 @@ const NabBar = () => {
           md: "20px",
         }}
       >
-        {userData && (
+        {accessToken && (
           <Box display={{ base: "block", lg: "none" }}>
             <IconButton
               aria-label="Create New Chat"
@@ -68,11 +66,11 @@ const NabBar = () => {
           as="h1"
           size="md"
           display={{
-            base: userData ? "none" : "block",
+            base: accessToken ? "none" : "block",
             lg: "block",
           }}
         >
-          IntelliHub AI
+          ThinkHub AI
         </Heading>
         <Flex gap={3} alignItems={"center"}>
           {/* COLOR MODE BUTTON */}
@@ -80,7 +78,7 @@ const NabBar = () => {
           {/* SETTING BUTTON */}
           <NavBarSettingBtn />
           {/* CREATE CHAT BUTTON */}
-          {userData && (
+          {accessToken && (
             <Button
               display={{
                 base: "block",
@@ -110,7 +108,7 @@ const NabBar = () => {
         <CommonDrawer
           isOpen={isNavbarOpen}
           onClose={toggleNavbar}
-          title="IntelliHub AI"
+          title="ThinkHub AI"
           placement="left"
         >
           <NavBarContent onClose={toggleNavbar} />

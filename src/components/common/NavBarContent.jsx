@@ -47,7 +47,7 @@ const NavBarContent = ({ onClose }) => {
           />
           <Button
             onClick={async () => {
-              await logoutUser();
+              await logoutUser({});
               onClose();
             }}
             variant="outline"

@@ -52,6 +52,7 @@ import Image from "next/image";
 import { saveAs } from "file-saver";
 import ChatLoading from "./ChatLoading";
 import { useMarkdownTheme } from "@/hooks/markdownTheme/useMarkdownTheme";
+import { Logo, LogoBlack } from "@/utility/utils/svg";
 
 const Home = () => {
   const { customMarkdownTheme } = useMarkdownTheme();
@@ -321,14 +322,16 @@ const Home = () => {
                                   msg.role === ROLE_USER ? "unset" : "100%"
                                 }
                               >
-                                {msg.role === ROLE_ASSISTANT &&
-                                  (msg.isLoading || msg.isImgLoading ? (
-                                    <ChatLoading />
-                                  ) : (
-                                    <Box>
-                                      <HiOutlineSparkles size={30} />
-                                    </Box>
-                                  ))}
+                                {msg.role === ROLE_ASSISTANT && (
+                                  <Box>
+                                    <Logo
+                                      colorMode={colorMode}
+                                      isLoading={
+                                        msg.isLoading || msg.isImgLoading
+                                      }
+                                    />
+                                  </Box>
+                                )}
                                 <Box
                                   bg={
                                     msg.role === ROLE_USER
@@ -375,13 +378,7 @@ const Home = () => {
                                                 "translate(-50%, -50%)",
                                             }}
                                           >
-                                            <Spinner
-                                              size={{
-                                                base: "lg",
-                                                md: "xl",
-                                              }}
-                                              thickness="2px"
-                                            />
+                                            <ChatLoading />
                                           </Box>
                                         </Box>
                                       </Box>
