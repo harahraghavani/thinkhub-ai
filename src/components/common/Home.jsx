@@ -13,7 +13,6 @@ import { MdDownload } from "react-icons/md";
 
 import { PiCopySimple } from "react-icons/pi";
 import { HiMiniCheck } from "react-icons/hi2";
-import { HiOutlineSparkles } from "react-icons/hi2";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -33,7 +32,6 @@ import {
   PopoverArrow,
   PopoverBody,
   Skeleton,
-  Spinner,
   useToast,
   Button,
 } from "@chakra-ui/react";
@@ -52,7 +50,7 @@ import Image from "next/image";
 import { saveAs } from "file-saver";
 import ChatLoading from "./ChatLoading";
 import { useMarkdownTheme } from "@/hooks/markdownTheme/useMarkdownTheme";
-import { Logo, LogoBlack } from "@/utility/utils/svg";
+import { Logo } from "@/utility/utils/svg";
 
 const Home = () => {
   const { customMarkdownTheme } = useMarkdownTheme();
@@ -622,7 +620,7 @@ const Home = () => {
                 placeHolderText={
                   isImageGeneration
                     ? "Describe what you want to generate"
-                    : "Message IntelliHub"
+                    : "Message ThinkHub"
                 }
                 sendOnClick={async () => {
                   await handleSendMessage();

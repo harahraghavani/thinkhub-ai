@@ -33,6 +33,7 @@ import remarkGfm from "remark-gfm";
 import { v4 as uuidv4 } from "uuid";
 import { getAuth } from "firebase/auth";
 import { formateString } from "@/utility/utils/utils";
+import { Logo } from "@/utility/utils/svg";
 
 const ShareChat = () => {
   const params = useParams();
@@ -219,14 +220,16 @@ const ShareChat = () => {
                                   msg.role === ROLE_USER ? "unset" : "100%"
                                 }
                               >
-                                {msg.role === ROLE_ASSISTANT &&
-                                  (msg.isLoading || msg.isImgLoading ? (
-                                    <ChatLoading />
-                                  ) : (
-                                    <Box>
-                                      <HiOutlineSparkles size={30} />
-                                    </Box>
-                                  ))}
+                                {msg.role === ROLE_ASSISTANT && (
+                                  <Box>
+                                    <Logo
+                                      colorMode={colorMode}
+                                      isLoading={
+                                        msg.isLoading || msg.isImgLoading
+                                      }
+                                    />
+                                  </Box>
+                                )}
                                 <Box
                                   bg={
                                     msg.role === ROLE_USER
