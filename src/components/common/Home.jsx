@@ -5,12 +5,14 @@ import { useForm } from "react-hook-form";
 import FormInput from "../form/FromInput";
 import {
   FLUX_1_SCHNELL,
+  IMAGE_RATIO,
+  IMAGE_STYLES,
   ROLE_ASSISTANT,
   ROLE_USER,
 } from "@/constant/appConstant";
 import { v4 as uuidv4 } from "uuid";
 import { MdDownload } from "react-icons/md";
-
+import { IoSettingsSharp } from "react-icons/io5";
 import { PiCopySimple } from "react-icons/pi";
 import { HiMiniCheck } from "react-icons/hi2";
 import Markdown from "react-markdown";
@@ -51,6 +53,7 @@ import { saveAs } from "file-saver";
 import ChatLoading from "./ChatLoading";
 import { useMarkdownTheme } from "@/hooks/markdownTheme/useMarkdownTheme";
 import { Logo } from "@/utility/utils/svg";
+import FormSelect from "../form/FormSelect";
 
 const Home = () => {
   const { customMarkdownTheme } = useMarkdownTheme();
@@ -72,6 +75,12 @@ const Home = () => {
     isOpen: openPreviewModal,
     onClose: closePreviewModal,
     onOpen: togglePreviewModal,
+  } = useDisclosure();
+
+  const {
+    isOpen: openSettingModal,
+    onClose: closeSettingModal,
+    onOpen: toggleSettingModal,
   } = useDisclosure();
 
   // States
@@ -101,10 +110,13 @@ const Home = () => {
     register,
     watch,
     setValue,
+    control,
     formState: { errors },
   } = useForm();
 
   const inputValue = watch("promptInput");
+  const imgStyle = watch("imgStyle");
+  const imgRatio = watch("imgRatio");
 
   const handleCopy = (text, index) => {
     // Check if the text is a code block
@@ -163,6 +175,8 @@ const Home = () => {
       model: selectedAIModel,
       prompt: prompt ?? inputValue,
       isImageGeneration,
+      style: imgStyle,
+      ratio: imgRatio,
     });
 
     if (responseError) {
@@ -176,7 +190,7 @@ const Home = () => {
       toast({
         title: error,
         status: "error",
-        duration: 3000,
+        duration: 5000,
         position: "bottom",
         isClosable: true,
       });
@@ -364,7 +378,7 @@ const Home = () => {
                                             }}
                                             borderRadius="10px"
                                             fadeDuration={0.3}
-                                            speed={0.7}
+                                            speed={0.8}
                                             position="relative"
                                           />
                                           <Box
@@ -386,6 +400,10 @@ const Home = () => {
                                         mb={8}
                                         position="relative"
                                         className="group"
+                                        width={{
+                                          base: "100%",
+                                          sm: "50%",
+                                        }}
                                       >
                                         <Image
                                           src={msg?.image?.secure_url}
@@ -407,11 +425,11 @@ const Home = () => {
                                         />
                                         <IconButton
                                           aria-label="Download image"
-                                          icon={<MdDownload color={"black"} />}
+                                          icon={<MdDownload />}
                                           position="absolute"
                                           top={{
-                                            base: "10%",
-                                            md: "5%",
+                                            base: "30px",
+                                            md: "30px",
                                           }}
                                           right={"-7px"}
                                           transform="translate(-50%, -50%)"
@@ -420,12 +438,12 @@ const Home = () => {
                                             md: 0,
                                           }}
                                           rounded="full"
-                                          background="white"
+                                          backgroundColor="transparent"
+                                          backdropFilter="blur(100px)"
+                                          boxShadow="0 4px 40px rgba(0, 0, 0, 0.2)"
+                                          border="1px solid rgba(255, 255, 255, 0.1)"
                                           transition="opacity 0.2s"
                                           _groupHover={{ opacity: 1 }}
-                                          _hover={{
-                                            background: "white",
-                                          }}
                                           onClick={() => {
                                             if (msg?.image?.secure_url) {
                                               saveAs(
@@ -580,10 +598,24 @@ const Home = () => {
                   <Switch
                     size="sm"
                     isChecked={isImageGeneration}
-                    onChange={() => {
+                    onChange={(e) => {
                       setIsImageGeneration(!isImageGeneration);
                     }}
                   />
+                  {isImageGeneration && (
+                    <IconButton
+                      size="sm"
+                      onClick={() => {
+                        toggleSettingModal();
+                      }}
+                      backgroundColor="transparent"
+                      _hover={{ bg: "transparent" }}
+                      transition="all .9s ease"
+                      ml={1}
+                    >
+                      <IoSettingsSharp />
+                    </IconButton>
+                  )}
                 </Flex>
               </Flex>
             )}
@@ -678,6 +710,47 @@ const Home = () => {
             >
               Download
             </Button>
+          </Box>
+        </CommonModal>
+      )}
+      {openSettingModal && (
+        <CommonModal
+          isOpen={openSettingModal}
+          onClose={() => {
+            closeSettingModal();
+          }}
+          title="Image Settings"
+          maxWidth="lg"
+          outsideAllowed
+          blurValue={20}
+        >
+          <Box display="flex" flexDirection="column" gap={5}>
+            <FormSelect
+              name="imgStyle"
+              id="imgStyle"
+              control={control}
+              options={IMAGE_STYLES}
+              label="Style"
+              placeholder="Select Image Style"
+              errors={{}}
+              optionLabel="label"
+              optionValue="value"
+              isClearable
+              isSearchable
+            />
+            {/* <FormSelect
+              name="imgRatio"
+              id="imgRatio"
+              control={control}
+              options={IMAGE_RATIO}
+              label="Ratio"
+              placeholder="Select Image Ratio"
+              errors={{}}
+              optionLabel="label"
+              optionValue="value"
+              isClearable
+              isSearchable
+            /> */}
           </Box>
         </CommonModal>
       )}

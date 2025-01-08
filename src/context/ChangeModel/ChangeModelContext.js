@@ -15,7 +15,6 @@ import { createContext, useState } from "react";
 const ChangeModelContext = createContext();
 
 const ChangeModelProvider = ({ children }) => {
-  console.log(getCookie(INTELLIHUB_SELECTED_MODEL));
   const sessionStorageData = decryptData(getCookie(INTELLIHUB_SELECTED_MODEL));
 
   const [selectedAIModel, setSelectedAIModel] = useState(

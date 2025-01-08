@@ -21,6 +21,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CommonModal from "@/components/common/CommonModal";
+import moment from "moment";
 
 export default function ChatHistoryComponent() {
   const router = useRouter();
@@ -53,11 +54,11 @@ export default function ChatHistoryComponent() {
         <Text fontWeight="bold">
           {truncateText(formateString(userMessage.content), isTablet ? 40 : 20)}
         </Text>
-        {assistantMessage && (
+        {/* {assistantMessage && (
           <Text isTruncated>
             {truncateText(formateString(assistantMessage.content))}
           </Text>
-        )}
+        )} */}
       </VStack>
     );
   };
@@ -141,6 +142,8 @@ export default function ChatHistoryComponent() {
                 <Grid gap={4}>
                   {chatHistory?.length > 0 ? (
                     chatHistory.map((chat) => {
+                      const date = new Date(Number(chat?.createdAt || 0) || "");
+                      const momentDate = moment(date);
                       const chatId = chat?.chatId;
                       const content = renderChatContent(chat.messages);
 
@@ -170,6 +173,7 @@ export default function ChatHistoryComponent() {
                           >
                             <CardBody p={3}>
                               {content}
+                              {momentDate.isValid() ? momentDate.fromNow() : ""}
                               <Box
                                 className="delete-icon"
                                 position="absolute"
