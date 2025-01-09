@@ -286,11 +286,11 @@ const Home = () => {
         }}
         display="flex"
         flexDirection="column"
-        overflow={"hidden"}
         padding={0}
+        position="relative"
       >
-        <Flex direction="column" height="calc(100vh - 80px)" width={"100%"}>
-          <Flex flex={1} direction="column" overflow="hidden">
+        <Flex direction="column" height="100%" width={"100%"}>
+          <Flex flex={1} direction="column">
             <Box
               flex={1}
               overflowY="auto"
@@ -311,7 +311,7 @@ const Home = () => {
                 <GradientLoader />
               ) : (
                 <>
-                  <VStack align="stretch" mx={0} width="100%">
+                  <VStack align="stretch" mx={0} width="100%" pb="90px">
                     {messages &&
                       messages.length > 0 &&
                       messages?.map((msg, index) => {
@@ -438,7 +438,11 @@ const Home = () => {
                                             md: 0,
                                           }}
                                           rounded="full"
-                                          backgroundColor="transparent"
+                                          backgroundColor={
+                                            colorMode === "light"
+                                              ? "rgba(255, 255, 255, 0.6)"
+                                              : "rgba(169, 169, 169, 0.2)"
+                                          }
                                           backdropFilter="blur(100px)"
                                           boxShadow="0 4px 40px rgba(0, 0, 0, 0.2)"
                                           border="1px solid rgba(255, 255, 255, 0.1)"
@@ -515,7 +519,27 @@ const Home = () => {
               )}
             </Box>
           </Flex>
-          <Box as="footer" py={4}>
+        </Flex>
+        {/* FOOTER */}
+        <Box
+          as="footer"
+          pt={3}
+          pb={4}
+          position="fixed"
+          bottom={0}
+          left="50%"
+          transform="translateX(-50%)"
+          width="100%"
+          bgColor={colorMode === "light" ? "white" : "gray.800"}
+          borderColor={colorMode === "light" ? "gray.200" : "gray.700"}
+          zIndex={999}
+        >
+          <Container
+            maxWidth={{
+              base: "90%",
+              md: "2xl",
+            }}
+          >
             {accessToken && (
               <Flex
                 justify="space-between"
@@ -661,8 +685,8 @@ const Home = () => {
                 labelMargin="0"
               />
             )}
-          </Box>
-        </Flex>
+          </Container>
+        </Box>
       </Container>
       {openAuthModal && (
         <CommonModal
