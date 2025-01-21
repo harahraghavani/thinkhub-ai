@@ -1,4 +1,5 @@
 "use client";
+
 import ChatHistory from "@/views/chat/history/view";
 import { Box, useColorMode } from "@chakra-ui/react";
 import NavBar from "@/components/common/NavBar";

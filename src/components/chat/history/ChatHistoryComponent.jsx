@@ -1,5 +1,4 @@
 "use client";
-import CreateNewChatBtn from "@/components/common/CreateNewChatBtn";
 import { Button, useDisclosure, useMediaQuery } from "@chakra-ui/react";
 import NoDataFound from "@/components/common/NoDataFound";
 import { GREETINGS_KEYWORDS } from "@/constant/appConstant";
