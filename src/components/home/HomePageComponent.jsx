@@ -84,7 +84,7 @@ const HomePageComponent = () => {
             lg: "block",
           }}
           position="fixed"
-          right={4}
+          right={0}
           top={0}
           zIndex={10}
         >

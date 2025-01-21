@@ -6,7 +6,6 @@ import { Box } from "@chakra-ui/react";
 const ChatHistory = () => {
   return (
     <Box>
-      <NabBar />
       <ChatHistoryComponent />
     </Box>
   );

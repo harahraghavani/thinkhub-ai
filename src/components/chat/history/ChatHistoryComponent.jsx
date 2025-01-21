@@ -82,135 +82,117 @@ export default function ChatHistoryComponent() {
         }}
         display="flex"
         flexDirection="column"
-        overflow="hidden"
         padding={0}
+        position="relative"
       >
-        <Box
-          display={{
-            base: "none",
-            lg: "block",
-          }}
-        >
-          <CreateNewChatBtn />
-        </Box>
-        <Flex
-          direction="column"
-          height="calc(100vh - 80px)"
-          width="100%"
-          py={5}
-        >
-          <Flex
-            direction="column"
-            sx={{
-              paddingRight: {
+        <Flex direction="column" height="100%" width={"100%"}>
+          <Flex flex={1} direction="column">
+            <Box
+              flex={1}
+              overflowY="auto"
+              px={{
                 base: 0,
-                md: "12px",
-              },
-              overflowY: {
-                base: "scroll",
-                md: "auto",
-              },
-              "&::-webkit-scrollbar": {
-                width: "5px",
-              },
-              "&::-webkit-scrollbar-track": {
-                background: {
-                  base: "transparent",
-                  md: colorMode === "dark" ? "gray.600" : "gray.300",
+                md: 0,
+              }}
+              py={4}
+              sx={{
+                "&::-webkit-scrollbar": {
+                  display: "none",
                 },
-                borderRadius: "4px",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                background: {
-                  base: "transparent",
-                  md: colorMode === "dark" ? "gray.400" : "gray.500",
-                },
-                borderRadius: "4px",
-              },
-            }}
-          >
-            {isChatLoading ? (
-              <Box>
-                <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
-                <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
-                <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
-                <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
-                <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
-              </Box>
-            ) : (
-              <>
-                <Grid gap={4}>
-                  {chatHistory?.length > 0 ? (
-                    chatHistory.map((chat) => {
-                      const date = new Date(Number(chat?.createdAt || 0) || "");
-                      const momentDate = moment(date);
-                      const chatId = chat?.chatId;
-                      const content = renderChatContent(chat.messages);
+                msOverflowStyle: "none",
+                scrollbarWidth: "none",
+              }}
+            >
+              {isChatLoading ? (
+                <Box>
+                  <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
+                  <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
+                  <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
+                  <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
+                  <Skeleton height={"60px"} borderRadius={"md"} mb={5} />
+                </Box>
+              ) : (
+                <>
+                  <Grid gap={4}>
+                    {chatHistory?.length > 0 ? (
+                      chatHistory.map((chat) => {
+                        const date = new Date(
+                          Number(chat?.createdAt || 0) || ""
+                        );
+                        const momentDate = moment(date);
+                        const chatId = chat?.chatId;
+                        const content = renderChatContent(chat.messages);
 
-                      return (
-                        content && (
-                          <Card
-                            key={chatId}
-                            boxShadow={"inner"}
-                            border={`1px solid ${
-                              colorMode === "dark"
-                                ? "rgba(255,255,255, 0.3)"
-                                : "#ccc"
-                            }`}
-                            cursor={"pointer"}
-                            position="relative"
-                            _hover={{
-                              "& .delete-icon": {
-                                opacity: { base: 1, md: 1 },
-                                visibility: { base: "visible", md: "visible" },
-                              },
-                            }}
-                            onClick={() => {
-                              if (chatId) {
-                                router.push(`/chat/${chatId}`);
-                              }
-                            }}
-                          >
-                            <CardBody p={3}>
-                              {content}
-                              {momentDate.isValid() ? momentDate.fromNow() : ""}
-                              <Box
-                                className="delete-icon"
-                                position="absolute"
-                                top={2}
-                                right={2}
-                                opacity={{ base: 1, md: 0 }}
-                                visibility={{ base: "visible", md: "hidden" }}
-                                transition="all 0.2s"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedChatId(chatId);
-                                  onOpen();
-                                }}
-                                p={2}
-                                borderRadius="full"
-                                _hover={{
-                                  bg:
-                                    colorMode === "dark"
-                                      ? "whiteAlpha.200"
-                                      : "blackAlpha.50",
-                                }}
-                              >
-                                <RiDeleteBin6Line />
-                              </Box>
-                            </CardBody>
-                          </Card>
-                        )
-                      );
-                    })
-                  ) : (
-                    <>
-                      <NoDataFound message="No chat history found" />
-                    </>
-                  )}
-                </Grid>
-              </>
-            )}
+                        return (
+                          content && (
+                            <Card
+                              key={chatId}
+                              boxShadow={"inner"}
+                              border={`1px solid ${
+                                colorMode === "dark"
+                                  ? "rgba(255,255,255, 0.3)"
+                                  : "#ccc"
+                              }`}
+                              cursor={"pointer"}
+                              position="relative"
+                              _hover={{
+                                "& .delete-icon": {
+                                  opacity: { base: 1, md: 1 },
+                                  visibility: {
+                                    base: "visible",
+                                    md: "visible",
+                                  },
+                                },
+                              }}
+                              onClick={() => {
+                                if (chatId) {
+                                  router.push(`/chat/${chatId}`);
+                                }
+                              }}
+                            >
+                              <CardBody p={3}>
+                                {content}
+                                {momentDate.isValid()
+                                  ? momentDate.fromNow()
+                                  : ""}
+                                <Box
+                                  className="delete-icon"
+                                  position="absolute"
+                                  top={2}
+                                  right={2}
+                                  opacity={{ base: 1, md: 0 }}
+                                  visibility={{ base: "visible", md: "hidden" }}
+                                  transition="all 0.2s"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedChatId(chatId);
+                                    onOpen();
+                                  }}
+                                  p={2}
+                                  borderRadius="full"
+                                  _hover={{
+                                    bg:
+                                      colorMode === "dark"
+                                        ? "whiteAlpha.200"
+                                        : "blackAlpha.50",
+                                  }}
+                                >
+                                  <RiDeleteBin6Line />
+                                </Box>
+                              </CardBody>
+                            </Card>
+                          )
+                        );
+                      })
+                    ) : (
+                      <>
+                        <NoDataFound message="No chat history found" />
+                      </>
+                    )}
+                  </Grid>
+                </>
+              )}
+            </Box>
           </Flex>
         </Flex>
       </Container>
