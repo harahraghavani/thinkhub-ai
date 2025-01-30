@@ -1,5 +1,5 @@
 "use server";
-import { streamText } from "ai";
+import { smoothStream, streamText } from "ai";
 import { createStreamableValue } from "ai/rsc";
 import { googleProvider, huggingFaceFluxProvider } from "@/utility/models";
 import { v2 as cloudinary } from "cloudinary";
@@ -85,6 +85,7 @@ export const generateStreamedTextData = async ({
         const { textStream } = await streamText({
           model: generativeModel,
           messages,
+          experimental_transform: smoothStream(),
         });
 
         for await (const delta of textStream) {
