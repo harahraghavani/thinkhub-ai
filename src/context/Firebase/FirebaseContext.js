@@ -394,8 +394,6 @@ const FirebaseProvider = ({ children }) => {
             })
           );
         }
-        const isRemoveImgSuccess =
-          result?.map((item) => item.isSuccess).filter(Boolean)?.length > 0;
 
         await deleteDoc(chatDocRef);
         await getChatHistoryData();

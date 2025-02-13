@@ -18,6 +18,7 @@ const CommonDrawer = ({
   isOpen,
   onClose,
   placement = "right",
+  overlayClose = false,
 }) => {
   const { colorMode } = useColorMode();
   return (
@@ -25,7 +26,7 @@ const CommonDrawer = ({
       isOpen={isOpen}
       placement={placement}
       onClose={onClose}
-      closeOnOverlayClick={false}
+      closeOnOverlayClick={overlayClose}
     >
       <DrawerOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
       <DrawerContent>

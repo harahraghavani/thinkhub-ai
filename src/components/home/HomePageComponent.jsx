@@ -78,18 +78,6 @@ const HomePageComponent = () => {
         >
           <ChatHistoryBtn />
         </Box>
-        <Box
-          display={{
-            base: "none",
-            lg: "block",
-          }}
-          position="fixed"
-          right={0}
-          top={0}
-          zIndex={10}
-        >
-          <ShareChatBtn />
-        </Box>
       </Box>
     </Box>
   );

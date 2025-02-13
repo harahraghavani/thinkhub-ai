@@ -92,14 +92,6 @@ const NabBar = () => {
               New Chat
             </Button>
           )}
-          <Box
-            display={{
-              base: "block",
-              lg: "none",
-            }}
-          >
-            <ShareChatBtn isAbsolute={false} isRightIcon={false} />
-          </Box>
           {/* USER PROFILE MENU & LOGIN BUTTON */}
           <NavBarUserProfileMenu />
         </Flex>
@@ -110,6 +102,7 @@ const NabBar = () => {
           onClose={toggleNavbar}
           title="ThinkHub AI"
           placement="left"
+          overlayClose
         >
           <NavBarContent onClose={toggleNavbar} />
         </CommonDrawer>

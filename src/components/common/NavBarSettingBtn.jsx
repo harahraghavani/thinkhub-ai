@@ -36,6 +36,7 @@ const NavBarSettingBtn = () => {
             isOpen={openSettings}
             onClose={closeSettings}
             title="Change Settings"
+            overlayClose
           >
             <ChangeModelContent
               open={openSettings}

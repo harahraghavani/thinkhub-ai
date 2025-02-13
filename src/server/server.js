@@ -3,11 +3,7 @@ import { smoothStream, streamText } from "ai";
 import { createStreamableValue } from "ai/rsc";
 import { googleProvider, huggingFaceFluxProvider } from "@/utility/models";
 import { v2 as cloudinary } from "cloudinary";
-import {
-  FLUX_1_SCHNELL,
-  ratioDimensions,
-  stylePrompts,
-} from "@/constant/appConstant";
+import { FLUX_1_SCHNELL } from "@/constant/appConstant";
 
 const cloudinaryConfig = {
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -22,8 +18,6 @@ export const generateStreamedTextData = async ({
   prompt,
   model,
   isImageGeneration = false,
-  style,
-  ratio,
 }) => {
   try {
     // ------ GOOGLE PROVIDER ------
@@ -34,20 +28,12 @@ export const generateStreamedTextData = async ({
     const huggingFace = huggingFaceFluxProvider();
 
     if (isImageGeneration) {
-      const selectedStylePrompt = stylePrompts[style] || "";
-      const dimensions = ratioDimensions[ratio] || {
-        width: 1080,
-        height: 1080,
-      };
-
-      const finalPrompt = `${prompt?.trim()} ${selectedStylePrompt}`;
-
       const response = await huggingFace.textToImage({
-        inputs: finalPrompt,
+        inputs: prompt?.trim(),
         model: FLUX_1_SCHNELL,
         parameters: {
-          height: dimensions.height,
-          width: dimensions.width,
+          height: 1080,
+          width: 1080,
           num_inference_steps: 7,
         },
       });
@@ -98,18 +84,17 @@ export const generateStreamedTextData = async ({
       return { output: stream.value };
     }
   } catch (error) {
-    console.log("error: ", error);
     return {
       output: null,
       isError: true,
-      error: error.message || "An unexpected error occurred.",
+      error: error.message,
     };
   }
 };
 
 export const deleteFile = async ({ sourceFilePath }) => {
   try {
-    const result = await cloudinary.uploader.destroy(sourceFilePath);
+    await cloudinary.uploader.destroy(sourceFilePath);
     return { isSuccess: true };
   } catch (error) {
     return { isSuccess: false };

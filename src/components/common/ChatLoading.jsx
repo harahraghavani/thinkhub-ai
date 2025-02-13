@@ -20,7 +20,7 @@ const ChatLoading = () => {
       options={defaultOptions}
       height={lottieSize}
       width={lottieSize}
-      isClickToPauseDisabled={false}
+      isClickToPauseDisabled
       style={{
         cursor: "default",
         width: "50px",

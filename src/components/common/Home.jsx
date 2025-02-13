@@ -77,12 +77,6 @@ const Home = () => {
     onOpen: togglePreviewModal,
   } = useDisclosure();
 
-  const {
-    isOpen: openSettingModal,
-    onClose: closeSettingModal,
-    onOpen: toggleSettingModal,
-  } = useDisclosure();
-
   // States
   const [isCopied, setIsCopied] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -175,8 +169,6 @@ const Home = () => {
       model: selectedAIModel,
       prompt: prompt ?? inputValue,
       isImageGeneration,
-      style: imgStyle,
-      ratio: imgRatio,
     });
 
     if (responseError) {
@@ -622,24 +614,10 @@ const Home = () => {
                   <Switch
                     size="sm"
                     isChecked={isImageGeneration}
-                    onChange={(e) => {
+                    onChange={() => {
                       setIsImageGeneration(!isImageGeneration);
                     }}
                   />
-                  {isImageGeneration && (
-                    <IconButton
-                      size="sm"
-                      onClick={() => {
-                        toggleSettingModal();
-                      }}
-                      backgroundColor="transparent"
-                      _hover={{ bg: "transparent" }}
-                      transition="all .9s ease"
-                      ml={1}
-                    >
-                      <IoSettingsSharp />
-                    </IconButton>
-                  )}
                 </Flex>
               </Flex>
             )}
@@ -675,7 +653,7 @@ const Home = () => {
                 rules={{}}
                 placeHolderText={
                   isImageGeneration
-                    ? "Describe what you want to generate"
+                    ? "Provide a highly detailed prompt for better image generation"
                     : "Message ThinkHub"
                 }
                 sendOnClick={async () => {
@@ -734,47 +712,6 @@ const Home = () => {
             >
               Download
             </Button>
-          </Box>
-        </CommonModal>
-      )}
-      {openSettingModal && (
-        <CommonModal
-          isOpen={openSettingModal}
-          onClose={() => {
-            closeSettingModal();
-          }}
-          title="Image Settings"
-          maxWidth="lg"
-          outsideAllowed
-          blurValue={20}
-        >
-          <Box display="flex" flexDirection="column" gap={5}>
-            <FormSelect
-              name="imgStyle"
-              id="imgStyle"
-              control={control}
-              options={IMAGE_STYLES}
-              label="Style"
-              placeholder="Select Image Style"
-              errors={{}}
-              optionLabel="label"
-              optionValue="value"
-              isClearable
-              isSearchable
-            />
-            {/* <FormSelect
-              name="imgRatio"
-              id="imgRatio"
-              control={control}
-              options={IMAGE_RATIO}
-              label="Ratio"
-              placeholder="Select Image Ratio"
-              errors={{}}
-              optionLabel="label"
-              optionValue="value"
-              isClearable
-              isSearchable
-            /> */}
           </Box>
         </CommonModal>
       )}

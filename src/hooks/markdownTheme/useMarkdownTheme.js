@@ -37,7 +37,7 @@ export const useMarkdownTheme = () => {
     ul: (props) => {
       const { children } = props;
       return (
-        <Box as="ul" styleType="disc" pl={4} mb={4}>
+        <Box as="ul" styletype="disc" pl={4} mb={4}>
           {children}
         </Box>
       );
@@ -45,7 +45,7 @@ export const useMarkdownTheme = () => {
     ol: (props) => {
       const { children } = props;
       return (
-        <Box as="ol" styleType="decimal" pl={4} mb={4}>
+        <Box as="ol" styletype="decimal" pl={4} mb={4}>
           {children}
         </Box>
       );
