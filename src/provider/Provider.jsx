@@ -2,7 +2,8 @@
 import { ChangeModelProvider } from "@/context/ChangeModel/ChangeModelContext";
 import { ManageRouteProvider } from "@/context/ManageRoute/ManageRouteContext";
 import { MessageProvider } from "@/context/message/MessagesContext";
-import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import AuthGuard from "@/hocs/AuthGuard";
+import { ChakraProvider, extendTheme, Spinner } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
 
 const FirebaseProvider = dynamic(
@@ -27,7 +28,9 @@ export function Providers({ children }) {
       <ManageRouteProvider>
         <ChangeModelProvider>
           <MessageProvider>
-            <FirebaseProvider>{children}</FirebaseProvider>
+            <FirebaseProvider>
+              <AuthGuard fallback={<Spinner size="xl" />}>{children}</AuthGuard>
+            </FirebaseProvider>
           </MessageProvider>
         </ChangeModelProvider>
       </ManageRouteProvider>

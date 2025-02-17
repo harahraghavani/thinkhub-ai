@@ -69,6 +69,7 @@ const FirebaseProvider = ({ children }) => {
   const [isCurrentUserChecking, setIsCurrentUserChecking] = useState(false);
   const [shareChatChecking, setShareChatChecking] = useState(false);
   const [getChatLoading, setGetChatLoading] = useState(false);
+  const [isUser, setIsUser] = useState(true);
 
   // COOKIE DATA
   const accessToken = getCookie(USER_ACCESS_TOKEN);
@@ -140,8 +141,10 @@ const FirebaseProvider = ({ children }) => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
+        setIsUser(false);
       } else {
         setUser(null);
+        setIsUser(false);
       }
     });
   };
@@ -453,6 +456,7 @@ const FirebaseProvider = ({ children }) => {
     states: {
       isLoading,
       user,
+      isUser,
       messages,
       setMessages,
       isGenerating,
@@ -470,6 +474,7 @@ const FirebaseProvider = ({ children }) => {
     userData,
     startChatBtnClick,
     isChatGenerating,
+    auth,
   };
 
   return (
